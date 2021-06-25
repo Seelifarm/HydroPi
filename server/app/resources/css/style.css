@@ -1,0 +1,59 @@
+body {
+    font-family: 'Montserrat', sans-serif;
+    background-color:black;
+    color: white;
+    overflow:hidden;
+}
+
+h1 {
+    font-size: 24px;
+    text-align: center;
+}
+
+h2 {
+    font-size: 16px;
+    text-align: center;
+}
+
+label {
+    font-size: 12px;
+}
+
+#grid-container {
+    display: grid;
+    grid-template-columns: minmax(0,1fr) 50%;
+    grid-template-areas: 
+    'clock clock'
+    'irrigation humidity'
+    'irrigation valves';
+}
+
+#clock {
+    margin: 2cm;
+    grid-area: clock;
+    display: block;
+    color:white
+}
+
+#irrigationPlans {
+    grid-area: irrigation;
+}
+
+#humidity {
+    grid-area: humidity;
+}
+
+#humidity-counter {
+    font-size: 90px;
+}
+
+#valves {
+    grid-area: valves;
+}
+.time {
+    font-size: 64px;
+}
+
+.date {
+    font-size: 24px;
+}

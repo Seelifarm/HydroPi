@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="resources/css/style.css">
+    <link rel="stylesheet" href="resources/css/tiles.css">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script>
+    <title>SmartHome Bewässerung</title>
+</head>
+<body>
+    <div id="grid-container">
+        <div id="clock" style="text-align: center;">
+            <span class='date'>Monday, 21.06.2021</span>
+            <br>
+            <span class='time'>16:00</span>
+        </div>
+        <div id="irrigationPlans">
+            <h1>Irrigation Plans</h1>
+            <div class="tiles bluetile" onclick="plan(true)">Super Irrigation Plan 64</div>
+            <div class="tiles bluetile"></div>
+            <div class="tiles bluetile"></div>
+            <div class="tiles greytile" onclick="plan(false)">&#43;</div>
+        </div>
+        <div id="humidity">
+            <h1>Humidity</h1>
+            <div style="display: flex; align-items: center; justify-content: center;">
+                <img src="resources/img/drop.svg" alt="DripDrop" style="width: 70px; padding: 1cm;">
+                <span id="humidity-counter">13%</span>
+            </div>
+        </div>
+        <div id="valves">
+            <h1>Valves</h1>
+            <span class="tiles greentile"> Super Valve 64</span>
+            <span class="tiles greentile"></span>
+            <span class="tiles greentile"></span>
+            <span class="tiles greentile"></span>
+        </div>
+    </div>
+    <script type="text/javascript" src="resources/js/clock.js"></script>
+    <script type="text/javascript" src="resources/js/tiles.js"></script>
+    <script type="text/javascript" src="resources/js/planner.js"></script>
+</body>
+</html>
