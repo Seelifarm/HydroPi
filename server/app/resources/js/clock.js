@@ -1,5 +1,17 @@
 "use strict"
 
+var socket;
+//Edit IP suitable
+socket = io.connect("http://localhost:80");
+function sendDataToServer() {
+    //Use this object to send data to the server
+    var data = {};
+    socket.emit("sendMessage", data);
+}
+
+
+
+
 class Clock {
     constructor(element){
         this.element = element;
