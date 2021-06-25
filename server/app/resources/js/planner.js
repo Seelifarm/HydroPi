@@ -1,6 +1,8 @@
 class Planner extends HTMLElement {
     change = false
 
+    weekArr = []
+
     constructor(change) {
         super()
         this.change = change
@@ -79,78 +81,58 @@ class Planner extends HTMLElement {
             let check = document.createElement('input')
             check.id = element.name
             check.type='checkbox'
-            check.style.width = '80px'
-            check.style.height = '80px'
-            check.style.padding = '0px'
-            check.style.color = 'lightgrey'
-            check.style.margin = '0px'
-            check.style.fontSize = '12px'
-            check.style.display = 'flex'
-            check.style.alignItems = 'center'
-            check.style.justifyContent = 'center'
-            check.style.border = 'solid'
-            check.style.borderColor = 'lightgrey'
-            check.style.borderWidth = '2px'
+            check.onchange = this.toggleInputs
             day.appendChild(check)
 
-            day.innerHTML += `<label for="${element.name}">${element.name}</label>`
+            let label = document.createElement('label')
+            label.id = element.name + 'Lbl'
+            label.htmlFor = element.name
+            label.textContent = element.name
+            day.appendChild(label)
             
             let start = document.createElement('span')
             start.textContent = 'Start at:'
-            start.style.fontSize = '12px'
-            start.style.color = 'lightgrey'
             day.appendChild(start)
 
             let time = document.createElement('input')
             time.type = 'time'
             time.value = '13:00'
             time.disabled = true
-            time.style.color = 'lightgrey'
-            time.style.width = '80px'
-            time.style.marginTop = '5px'
-            time.style.marginBottom = '5px'
             day.appendChild(time)
         
             let durationLbl = document.createElement('span')
             durationLbl.textContent = 'Duration in s:'
-            durationLbl.style.fontSize = '12px'
-            durationLbl.style.color = 'lightgrey'
             day.appendChild(durationLbl)
 
             let duration = document.createElement('input')
             duration.type = 'number'
-            duration.id = 'duration'
             duration.valueAsNumber = 100
             duration.min = 1
             duration.disabled = true
-            duration.style.color = 'lightgrey'
-            duration.style.width = '80px'
-            duration.style.marginTop = '5px'
-            duration.style.marginBottom = '5px'
             day.appendChild(duration)
 
-
-            check.addEventListener('onmouseup', () => {
-                console.log('hellö')
-                check.style.color = 'black'
-                check.style.borderColor = 'black'
-
-                start.style.color = 'black'
-                
-                time.disabled = false
-                time.style.color = 'black'
-
-                durationLbl.style.color = 'black'
-
-                duration.disabled = false
-                duration.style.color = 'black'
-            })
-
+            this.weekArr.push(day)
             weekdiv.appendChild(day)
         })
 
         div.appendChild(weekdiv)
         this.appendChild(div)
+    }
+
+    toggleInputs(element) {
+        let time = element.srcElement.parentNode.children[3]
+        if(time && time.disabled === true){
+            time.disabled = false
+        } else if (time) {
+            time.disabled = true
+        }
+
+        let duration = element.srcElement.parentNode.children[5]
+        if(duration && duration.disabled === true){
+            duration.disabled = false
+        } else if (time) {
+            duration.disabled = true
+        }
     }
 
     createSubmit(){
@@ -198,8 +180,6 @@ class Planner extends HTMLElement {
 
 window.customElements.define('my-planner', Planner)
 
-
-
 function plan(change) {
     //Remove any underlaying elements
     let humidity = document.getElementById('humidity')
@@ -245,4 +225,5 @@ function deletePlan(){
     }
     
 }
+
 
