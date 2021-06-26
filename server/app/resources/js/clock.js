@@ -6,7 +6,7 @@ const socket = io.connect("http://localhost:80")
 function sendDataToServer(data) {
     //Use this object to send data to the server
     socket.emit("sendMessage", data);
-    document.getElementsById('testBtn').disabled = true
+   // document.getElementsById('testBtn').disabled = true
 }
 
 class Clock {

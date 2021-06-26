@@ -10,24 +10,11 @@ const nodeCron = require('node-cron')
 var CronJobManager = require('cron-job-manager')
 var PythonShell = require('python-shell')
 var socket = require('socket.io')
+var server = http.createServer(app)
 var io = socket(server);
 var manager = new CronJobManager()
-
-
-
 var htmlPath = path.join(__dirname, 'app')
-
 app.use(express.static(htmlPath))
-
-var server = http.createServer(app)
-
-server.listen(port, error => {
-    if (error) {
-        console.log('Something went wrong ', error)
-    } else {
-        console.log('Server is listening on port ' + port)
-    }
-})
 
 var counter = 0
 io.sockets.on("connection", function(Socket){
@@ -38,6 +25,16 @@ io.sockets.on("connection", function(Socket){
     manager.add(counter.toString(),'0 * * * * *', function() {
         console.log("Test String - every minute!")
     });
-
+    console.log("cronjob done")
   });
 });
+
+server.listen(port, error => {
+    if (error) {
+        console.log('Something went wrong ', error)
+    } else {
+        console.log('Server is listening on port ' + port)
+    }
+})
+
+
