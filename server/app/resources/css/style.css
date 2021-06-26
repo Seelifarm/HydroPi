@@ -32,7 +32,7 @@ input[type="checkbox"] + label {
     line-height: 80px;
     color: lightgrey;
     border: solid;
-    border-color: lightgrey;
+    border-color: rgb(131, 129, 129);
     border-width: 2px;
 }
 
