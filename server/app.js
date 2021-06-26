@@ -23,9 +23,13 @@ io.sockets.on("connection", function(Socket){
     console.log(data)
     //Use data to fill tje job with variables
     manager.add(counter.toString(),'0 * * * * *', function() {
+      //use python-shell to execute script
         console.log("Test String - every minute!")
     });
+    manager.start(counter.toString())
     console.log("cronjob done")
+    counter++
+    console.log(counter)
   });
 });
 
