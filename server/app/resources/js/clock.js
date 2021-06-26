@@ -1,16 +1,13 @@
 "use strict"
 
-var socket;
+const socket = io.connect("http://localhost:80")
 //Edit IP suitable
-socket = io.connect("http://localhost:80");
-function sendDataToServer() {
+
+function sendDataToServer(data) {
     //Use this object to send data to the server
-    var data = {};
     socket.emit("sendMessage", data);
+    document.getElementsById('testBtn').disabled = true
 }
-
-
-
 
 class Clock {
     constructor(element){

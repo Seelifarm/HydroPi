@@ -22,6 +22,7 @@
             <div class="tiles bluetile"></div>
             <div class="tiles bluetile"></div>
             <div class="tiles greytile" onclick="plan(false)">&#43;</div>
+            <button id ="testBtn" onclick="sendDataToServer({name:'Tobi', age:18})">Platscher</button>
         </div>
         <div id="humidity">
             <h1>Humidity</h1>
@@ -38,6 +39,7 @@
             <span class="tiles greentile"></span>
         </div>
     </div>
+    <script type="text/javascript" src="./socket.io.js"></script>
     <script type="text/javascript" src="resources/js/clock.js"></script>
     <script type="text/javascript" src="resources/js/tiles.js"></script>
     <script type="text/javascript" src="resources/js/planner.js"></script>

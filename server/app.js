@@ -6,7 +6,7 @@ const fs = require('fs')
 const path = require('path')
 const port = 80
 const app = express()
-const http = require('node-cron')
+const nodeCron = require('node-cron')
 var CronJobManager = require('cron-job-manager')
 var PythonShell = require('python-shell')
 var socket = require('socket.io')
@@ -33,7 +33,7 @@ var counter = 0
 io.sockets.on("connection", function(Socket){
   console.log("New connection found and registered with ID: " + Socket.id);
   Socket.on("sendMessage", function(data){
-
+    console.log(data)
     //Use data to fill tje job with variables
     manager.add(counter.toString(),'0 * * * * *', function() {
         console.log("Test String - every minute!")
