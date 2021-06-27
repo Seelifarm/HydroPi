@@ -7,6 +7,8 @@ const path = require('path')
 const port = 80
 const app = express()
 const nodeCron = require('node-cron')
+const db = require("./db/irrigationPlans")
+const knex = require("./db/knex");
 var CronJobManager = require('cron-job-manager')
 var PythonShell = require('python-shell')
 var socket = require('socket.io')
@@ -31,14 +33,37 @@ io.sockets.on("connection", function(Socket){
     counter++
     console.log("★ Logging this counter: " + counter)
   });
+
+  Socket.on("createPlan", async function(data){
+    console.log("Insert")
+    console.log(data.planID)
+    const results = await db.createIrrigationPlan({ planID: data.planID, monDuration: 1000});
+    //res.status(201).json({ id: results[0] });
+    //db.createIrrigationPlan({ planID: 123 });
+    //await knex('irrigationPlans').insert({ planID: 123 })
+
+  });
 });
 
+
+
+
+// Database
+app.use(express.urlencoded({extended: false}));
+app.use(express.json());
+
+/* app.post("/irrigationPlans", async (req, res) => {
+  const results = await db.createIrrigationPlan(req.body);
+  res.status(201).json({ id: results[0] });
+}); */
+
+
+
+
 server.listen(port, error => {
-    if (error) {
-        console.log('★ Something went wrong ', error)
-    } else {
-        console.log('★ Server is listening on port ' + port)
-    }
+  if (error) {
+      console.log('★ Something went wrong ', error)
+  } else {
+      console.log('★ Server is listening on port ' + port)
+  }
 })
-
-
