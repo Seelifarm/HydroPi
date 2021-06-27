@@ -1,11 +1,34 @@
 "use strict"
 
-const socket = io.connect("http://hydropi:80")
+const socket = io.connect("http://localhost:80")
 //Edit IP suitable
 
 function sendDataToServer(data) {
     //Use this object to send data to the server
     socket.emit("sendMessage", data);
+   // document.getElementsById('testBtn').disabled = true
+}
+
+function sendDataToServer2() {
+    //Use this object to send data to the server
+    var data = {
+        planID: 5,
+        monday: null,
+        monDuration: 100,
+        tuesday: null,
+        tueDuration: 100,
+        wednesday: null,
+        wedDuration: 100,
+        thursday: null,
+        thuDuration: 100,
+        friday: null,
+        friDuration: 100,
+        saturday: null,
+        satDuration: 100,
+        sunday: null,
+        sunDuration: 100
+    }
+    socket.emit("createPlan", data);
    // document.getElementsById('testBtn').disabled = true
 }
 
