@@ -12,7 +12,16 @@ function sendDataToServer(data) {
 function sendDataToServer2() {
     //Use this object to send data to the server
     var data = {
-        planID: 5,
+        tableName: "irrigationPlans"
+    }
+    socket.emit("requestData", data);
+   // document.getElementsById('testBtn').disabled = true
+}
+
+function sendDataToServer3() {
+    //Use this object to send data to the server
+    var data = {
+        planID: 8,
         monday: null,
         monDuration: 100,
         tuesday: null,
@@ -31,6 +40,16 @@ function sendDataToServer2() {
     socket.emit("createPlan", data);
    // document.getElementsById('testBtn').disabled = true
 }
+
+
+
+    socket.on("fetchData", function(data) {
+        console.log("kOMMT AN")
+        console.log(JSON.stringify(data))
+    });
+
+
+
 
 class Clock {
     constructor(element){

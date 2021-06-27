@@ -7,8 +7,7 @@ const path = require('path')
 const port = 80
 const app = express()
 const nodeCron = require('node-cron')
-const db = require("./db/irrigationPlans")
-const knex = require("./db/knex");
+const db = require("./db/entities")
 var CronJobManager = require('cron-job-manager')
 var PythonShell = require('python-shell')
 var socket = require('socket.io')
@@ -19,8 +18,10 @@ var htmlPath = path.join(__dirname, 'app')
 app.use(express.static(htmlPath))
 
 var counter = 0
+var clients = {}
 io.sockets.on("connection", function(Socket){
   console.log("★ New connection found and registered with ID: " + Socket.id);
+  clients[Socket.id] = Socket;
   Socket.on("sendMessage", function(data){
     console.log("★ " + data)
     //Use data to fill tje job with variables
@@ -36,12 +37,38 @@ io.sockets.on("connection", function(Socket){
 
   Socket.on("createPlan", async function(data){
     console.log("Insert")
-    console.log(data.planID)
-    const results = await db.createIrrigationPlan({ planID: data.planID, monDuration: 1000});
+    console.log(JSON.stringify(data))
+    switch (data.tableName) {
+      case "irrigationPlans":
+        await db.insertEntity(data.tableName, data) 
+        break;
+    
+      default:
+        break;
+    }
+    //await db.createIrrigationPlan(data);
+    //const results = await db.createIrrigationPlan({ planID: data.planID, monDuration: 1000});
     //res.status(201).json({ id: results[0] });
-    //db.createIrrigationPlan({ planID: 123 });
-    //await knex('irrigationPlans').insert({ planID: 123 })
+  });
 
+  Socket.on("requestData", async function(data){
+    console.log(JSON.stringify(data))
+
+    var destination = clients[data.destinationId];
+
+    const results = await db.getAllEntities(data.tableName);
+
+    console.log(JSON.stringify(results))
+
+    // if destination is undefined (falsy) it does not
+            // exist in the hash
+/*             if (!destination) {
+              console.log("No destination")
+              return;
+      } */
+
+      // send a message to the destination
+      Socket.emit("fetchData" , { message: results });
   });
 });
 
