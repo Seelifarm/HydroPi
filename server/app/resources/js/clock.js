@@ -1,6 +1,6 @@
 "use strict"
 
-const socket = io.connect("http://hydropi:80")
+const socket = io.connect("http://localhost:80")
 //Edit IP suitable
 
 function sendDataToServer(data) {

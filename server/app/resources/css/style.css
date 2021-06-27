@@ -93,6 +93,12 @@ input[type="checkbox"]:checked ~ span {
 #valves {
     grid-area: valves;
 }
+
+#valveWrapper {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
 .time {
     font-size: 64px;
 }

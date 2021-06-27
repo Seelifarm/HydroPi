@@ -3,26 +3,40 @@
     width:150px;
     float:left;
     display: flex;
-    align-items: center;
-    justify-content: center;
+    justify-content:center;
     margin:5px 5px 5px 5px;
     padding:2px; 
-    text-align: center;
+    text-align:center;
+    line-height: 250px;
+    color: black;
 }
 
-.bluetile{
-    background-color: blue;
+.irrigationTile {
+    background-color: white;
+    background-image: url(../img/event.svg);
+    background-repeat: no-repeat;
+    background-size: 80px;
+    background-position: center;
 }
 
-.greentile{
-    background-color: green;
+.valveTile{
+    background-color: white;
+    background-image: url(../img/valve.svg);
+    background-repeat: no-repeat;
+    background-size: 80px;
+    background-position: center;
 }
 
-.greytile{
+.addTile{
     background-color: rgb(37, 39, 39);
     font-size: 50px;
+    align-items: center;
+    color: white;
+    border: solid;
+    border-color: white;
+    border-width: 2px;
 }
 
-.selectedtile{
+.selectedTile{
     background-color: darkorange;
 }
