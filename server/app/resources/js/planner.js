@@ -7,22 +7,26 @@ class Planner extends HTMLElement {
         super()
         this.change = change
         this.id = 'planner'
-        this.style.backgroundColor = 'white'
+        this.style.backgroundColor = 'black'
         this.style.color = 'black'
         this.style.gridArea = 'planner'
+        this.style.borderTop = 'solid'
+        this.style.borderLeft = 'solid'
+        this.style.borderWidth = '1px'
+        this.style.borderColor = 'white'
         this.style.minWidth = '500px'
         this.style.backgroundRepeat = 'repeat-y'
         this.style.height = '100%'
 
         this.createHeadline()
-        this.createValves([{name: 'Relay 1'},{name: 'Relay 2'}])
+        this.createValves([{name: 'Valve 1'},{name: 'Valve 2'}])
         this.createWeek()
         this.createSubmit()
     }
 
     createHeadline(){
         let headline = document.createElement('h1')
-
+        headline.style.color = 'white'
         if (this.change) {
             headline.textContent = 'Change your irrigation plan'
         } else {
@@ -35,6 +39,7 @@ class Planner extends HTMLElement {
     createValves(arr){
         let valvesArr = arr
         let question = document.createElement('h2')
+        question.style.color = 'white'
         question.textContent = 'Which valves should be included?'
         this.appendChild(question)
         let valves = document.createElement('div')
@@ -43,15 +48,18 @@ class Planner extends HTMLElement {
         valves.style.justifyContent = 'center'
 
         valvesArr.forEach(element => {
-            let span = document.createElement('span')
-            span.className = 'tiles'
-            span.style.height = '100px'
-            span.style.width = '100px'
-            span.style.backgroundColor = 'white'
-            span.style.border = 'solid'
-            span.style.borderWidth = '2px'
-            span.textContent = element.name
-            valves.appendChild(span)
+            let check = document.createElement('input')
+            check.id = element.name
+            check.type = 'checkbox'
+            valves.appendChild(check)
+        
+            let label = document.createElement('label')
+            label.id = element.name + 'Lbl'
+            label.htmlFor = element.name
+            label.textContent = element.name
+            label.style.margin = '2px'
+            valves.appendChild(label)
+
         });
 
         this.appendChild(valves)
@@ -62,6 +70,7 @@ class Planner extends HTMLElement {
         div.style.width = this.width
 
         let question = document.createElement('h2')
+        question.style.color = 'white'
         question.textContent = 'On which days do you want to irrigate?'
         div.appendChild(question)
 
@@ -160,7 +169,7 @@ class Planner extends HTMLElement {
             deleteBtn.textContent = 'Delete Plan'
             deleteBtn.style.color = 'red'
             deleteBtn.style.borderColor = 'red'
-            deleteBtn.style.backgroundColor = 'white'
+            deleteBtn.style.backgroundColor = 'black'
             deleteBtn.style.padding = '15px 32px'
             deleteBtn.style.display = 'inline-block'
             deleteBtn.style.margin = '5px'

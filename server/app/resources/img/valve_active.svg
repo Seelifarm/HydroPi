@@ -1,11 +1,11 @@
 <svg xmlns="http://www.w3.org/2000/svg" width="50" height="50" viewBox="0 0 50 50">
   <g>
-    <polygon points="29 15.6 20.5 15.6 20.5 11.3 20.5 7.1 29 7.1 29 11.3 29 15.6" style="fill: none;stroke: #000;stroke-linecap: round;stroke-linejoin: round;stroke-width: 3px"/>
-    <line x1="12.3" y1="11.3" x2="20.5" y2="11.3" style="fill: none;stroke: #000;stroke-linecap: round;stroke-linejoin: round;stroke-width: 3px"/>
-    <line x1="37.2" y1="11.3" x2="29" y2="11.3" style="fill: none;stroke: #000;stroke-linecap: round;stroke-linejoin: round;stroke-width: 3px"/>
-    <rect x="16.4" y="24.1" width="16.7" height="16.7" style="fill: #fff;stroke: #000;stroke-linecap: round;stroke-linejoin: round;stroke-width: 3px"/>
-    <rect x="2" y="26.1" width="14.4" height="12.5" style="fill: #09f;stroke: #000;stroke-linecap: round;stroke-linejoin: round;stroke-width: 3px"/>
-    <rect x="33.1" y="26.1" width="14.4" height="12.5" style="fill: #09f;stroke: #000;stroke-linecap: round;stroke-linejoin: round;stroke-width: 3px"/>
-    <line x1="24.7" y1="15.6" x2="24.7" y2="24.1" style="fill: none;stroke: #000;stroke-linecap: round;stroke-linejoin: round;stroke-width: 3px"/>
+    <polygon points="29 15.6 20.5 15.6 20.5 11.3 20.5 7.1 29 7.1 29 11.3 29 15.6" style="fill: none;stroke: #fff;stroke-linecap: round;stroke-linejoin: round;stroke-width: 3px"/>
+    <line x1="12.3" y1="11.3" x2="20.5" y2="11.3" style="fill: none;stroke: #fff;stroke-linecap: round;stroke-linejoin: round;stroke-width: 3px"/>
+    <line x1="37.2" y1="11.3" x2="29" y2="11.3" style="fill: none;stroke: #fff;stroke-linecap: round;stroke-linejoin: round;stroke-width: 3px"/>
+    <rect x="16.4" y="24.1" width="16.7" height="16.7" style="fill: #fff;stroke: #fff;stroke-linecap: round;stroke-linejoin: round;stroke-width: 3px"/>
+    <rect x="2" y="26.1" width="14.4" height="12.5" style="fill: #09f;stroke: #fff;stroke-linecap: round;stroke-linejoin: round;stroke-width: 3px"/>
+    <rect x="33.1" y="26.1" width="14.4" height="12.5" style="fill: #09f;stroke: #fff;stroke-linecap: round;stroke-linejoin: round;stroke-width: 3px"/>
+    <line x1="24.7" y1="15.6" x2="24.7" y2="24.1" style="fill: none;stroke: #fff;stroke-linecap: round;stroke-linejoin: round;stroke-width: 3px"/>
   </g>
 </svg>

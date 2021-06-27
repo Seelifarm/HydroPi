@@ -7,23 +7,26 @@
     margin:5px 5px 5px 5px;
     padding:2px; 
     text-align:center;
-    line-height: 250px;
-    color: black;
+    line-height: 270px;
+    color: white;
+    border: solid;
+    border-width: 2px;
+    border-color: white;
 }
 
 .irrigationTile {
-    background-color: white;
+    background-color: rgb(37, 39, 39);
     background-image: url(../img/event.svg);
     background-repeat: no-repeat;
-    background-size: 80px;
+    background-size: 60px;
     background-position: center;
 }
 
 .valveTile{
-    background-color: white;
+    background-color: rgb(37, 39, 39);
     background-image: url(../img/valve.svg);
     background-repeat: no-repeat;
-    background-size: 80px;
+    background-size: 60px;
     background-position: center;
 }
 
@@ -38,5 +41,5 @@
 }
 
 .selectedTile{
-    background-color: darkorange;
+    background-color: white;
 }
