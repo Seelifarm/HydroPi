@@ -22,7 +22,7 @@
             <div class="tiles irrigationTile" onclick="plan(true)">Irrigation Plan 1</div>
             <div class="tiles irrigationTile" onclick="plan(true)">Irrigation Plan 2</div>
             <div class="tiles irrigationTile" onclick="plan(true)">Irrigation Plan 3</div>
-            <button id ="testBtn" onclick="sendDataToServer2()">Platscher</button>
+           <!-- <button id ="testBtn" onclick="sendDataToServer2()">Platscher</button>-->
         </div>
         <div id="humidity">
             <h1>Humidity</h1>
@@ -34,7 +34,7 @@
         <div id="valves">
             <h1>Valves</h1>
             <div id="valveWrapper">
-                <div class="tiles valveTile">Valve 1</div>
+                <div class="tiles valveTile" style="background-color: black;">Valve 1</div>
                 <div class="tiles valveTile" style="background-image: url(resources/img/valve_active.svg);">Valve 2</div>
             </div>
         </div>
@@ -44,4 +44,5 @@
     <script type="text/javascript" src="resources/js/tiles.js"></script>
     <script type="text/javascript" src="resources/js/planner.js"></script>
 </body>
+<footer>HydroPi Smarthome Bewässerung ©</footer>
 </html>
