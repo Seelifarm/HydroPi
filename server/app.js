@@ -18,26 +18,26 @@ app.use(express.static(htmlPath))
 
 var counter = 0
 io.sockets.on("connection", function(Socket){
-  console.log("New connection found and registered with ID: " + Socket.id);
+  console.log("★ New connection found and registered with ID: " + Socket.id);
   Socket.on("sendMessage", function(data){
-    console.log(data)
+    console.log("★ " + data)
     //Use data to fill tje job with variables
     manager.add(counter.toString(),'0 * * * * *', function() {
       //use python-shell to execute script
-        console.log("Test String - every minute!")
+        console.log("★ A Cron Job is running every minute")
     });
     manager.start(counter.toString())
-    console.log("cronjob done")
+    console.log("★ Started a cron job")
     counter++
-    console.log(counter)
+    console.log("★ Logging this counter: " + counter)
   });
 });
 
 server.listen(port, error => {
     if (error) {
-        console.log('Something went wrong ', error)
+        console.log('★ Something went wrong ', error)
     } else {
-        console.log('Server is listening on port ' + port)
+        console.log('★ Server is listening on port ' + port)
     }
 })
 
