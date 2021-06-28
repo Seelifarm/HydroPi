@@ -1,0 +1,88 @@
+#planner {
+    background-color: black;
+    grid-area: 'planner';
+    border-top: solid;
+    border-left: solid;
+    border-width: 1px;
+    border-color: white;
+    min-width: 500px;
+}
+
+h2 {
+    font-size: 16px;
+    color: white;
+    text-align: center;
+}
+
+input[type="checkbox"] {
+    display: none!important;
+}
+
+input[type="checkbox"] + label {
+    display: inline-block;
+    width: 80px;
+    height: 80px;
+    font-size: 12px;
+    text-align: center;
+    cursor: pointer;
+    line-height: 80px;
+    color: lightgrey;
+    border: solid;
+    border-color: rgb(131, 129, 129);
+    border-width: 2px;
+}
+
+input[type="checkbox"]:checked + label{
+    color: white;
+    border:solid;
+    border-width: 2px;
+    background-color: rgb(37, 39, 39);
+}
+
+input[type="checkbox"] ~ input {
+    color : lightgrey;
+    width : 80px;
+    margin-top : 5px;
+    margin-bottom : 5px;
+}
+
+input[type="checkbox"]:checked ~ input {
+    color: black;
+    background-color: white;
+}
+
+input[type="checkbox"] ~ span {
+    color : lightgrey;
+    font-size: 12px;
+}
+
+input[type="checkbox"]:checked ~ span {
+    color: white;
+}
+
+#submitWrapper {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 75px;
+}
+
+#submitBtn {
+    border: none;
+    text-align: center;
+    text-decoration: none;
+    padding: 15px 32px;
+    display: inline-block;
+    margin: 5px;
+}
+
+#deleteBtn {
+    color: red;
+    border-color: red;
+    background: none;
+    padding: 15px 32px;
+    display: inline-block;
+    margin: 5px;
+    text-align: center;
+}
+

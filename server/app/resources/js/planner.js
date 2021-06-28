@@ -1,23 +1,34 @@
 class Planner extends HTMLElement {
+    planObj = {
+        //Hier von allen Plans die höchste ID finden und + 1
+        planID: 0,
+        monday: null,
+        monDuration: 100,
+        tuesday: null,
+        tueDuration: 100,
+        wednesday: null,
+        wedDuration: 100,
+        thursday: null,
+        thuDuration: 100,
+        friday: null,
+        friDuration: 100,
+        saturday: null,
+        satDuration: 100,
+        sunday: null,
+        sunDuration: 100
+    }
+
+    //Boolean to see if plan already exists in db
     change = false
 
+    //Contains all day-divs for easy access
     weekArr = []
 
     constructor(change) {
         super()
         this.change = change
         this.id = 'planner'
-        this.style.backgroundColor = 'black'
-        this.style.color = 'black'
-        this.style.gridArea = 'planner'
-        this.style.borderTop = 'solid'
-        this.style.borderLeft = 'solid'
-        this.style.borderWidth = '1px'
-        this.style.borderColor = 'white'
-        this.style.minWidth = '500px'
-        this.style.backgroundRepeat = 'repeat-y'
-        this.style.height = '100%'
-
+ 
         this.createHeadline()
         this.createValves([{name: 'Valve 1'},{name: 'Valve 2'}])
         this.createWeek()
@@ -26,7 +37,6 @@ class Planner extends HTMLElement {
 
     createHeadline(){
         let headline = document.createElement('h1')
-        headline.style.color = 'white'
         if (this.change) {
             headline.textContent = 'Change your irrigation plan'
         } else {
@@ -39,7 +49,6 @@ class Planner extends HTMLElement {
     createValves(arr){
         let valvesArr = arr
         let question = document.createElement('h2')
-        question.style.color = 'white'
         question.textContent = 'Which valves should be included?'
         this.appendChild(question)
         let valves = document.createElement('div')
@@ -70,7 +79,6 @@ class Planner extends HTMLElement {
         div.style.width = this.width
 
         let question = document.createElement('h2')
-        question.style.color = 'white'
         question.textContent = 'On which days do you want to irrigate?'
         div.appendChild(question)
 
@@ -128,6 +136,34 @@ class Planner extends HTMLElement {
         this.appendChild(div)
     }
 
+    createSubmit(){
+        let div = document.createElement('div')
+        div.id = 'submitWrapper'
+
+
+        let submitBtn = document.createElement('button')
+        submitBtn.id = 'submitBtn'
+
+        //Only adds a delete button if there is already a plan existing, otherwise just give the option to save a plan
+        if (this.change){
+            submitBtn.textContent = 'Change Plan'
+            submitBtn.onclick = changePlan
+            div.appendChild(submitBtn)
+
+            let deleteBtn = document.createElement('button')
+            deleteBtn.id = 'deleteBtn'
+            deleteBtn.textContent = 'Delete Plan'
+            deleteBtn.onclick = deletePlan
+            div.appendChild(deleteBtn)
+        } else {
+            submitBtn.textContent = 'Save Plan'
+            submitBtn.onclick = createPlan
+            div.appendChild(submitBtn)
+        }
+
+        this.appendChild(div)
+    }
+
     toggleInputs(element) {
         let time = element.srcElement.parentNode.children[3]
         if(time && time.disabled === true){
@@ -142,48 +178,6 @@ class Planner extends HTMLElement {
         } else if (time) {
             duration.disabled = true
         }
-    }
-
-    createSubmit(){
-        let div = document.createElement('div')
-        div.id = 'submitWrapper'
-        div.style.display = 'flex'
-        div.style.alignItems = 'center'
-        div.style.justifyContent = 'center'
-        div.style.height = '75px'
-
-        let submitBtn = document.createElement('button')
-        submitBtn.style.border = 'none'
-        submitBtn.style.textAlign = 'center'
-        submitBtn.style.textDecoration = 'none'
-        submitBtn.style.padding = '15px 32px'
-        submitBtn.style.display = 'inline-block'
-        submitBtn.style.margin = '5px'
-
-        if (this.change){
-            submitBtn.textContent = 'Change Plan'
-            submitBtn.onclick = changePlan
-            div.appendChild(submitBtn)
-
-            let deleteBtn = document.createElement('button')
-            deleteBtn.textContent = 'Delete Plan'
-            deleteBtn.style.color = 'red'
-            deleteBtn.style.borderColor = 'red'
-            deleteBtn.style.backgroundColor = 'black'
-            deleteBtn.style.padding = '15px 32px'
-            deleteBtn.style.display = 'inline-block'
-            deleteBtn.style.margin = '5px'
-            deleteBtn.style.textAlign = 'center'
-            deleteBtn.onclick = deletePlan
-            div.appendChild(deleteBtn)
-
-        } else {
-            submitBtn.textContent = 'Save Plan'
-            submitBtn.onclick = createPlan
-            div.appendChild(submitBtn)
-        }
-
-        this.appendChild(div)
     }
 }
 
@@ -206,33 +200,101 @@ function plan(change) {
         planner.remove()
     }
     
-    //adding a new grid item and stretching it over the template areas
+    //Adds a new custom HTML-Element as grid item and changes the template areas accordingly
     planner = new Planner(change)
 
     const container = document.getElementById('grid-container')
-    container.appendChild(planner)
     container.style.gridTemplateAreas = '"clock clock" "irrigation planner"'
+    container.appendChild(planner)
 }
 
 function createPlan() {
     console.log('Plan will be saved')
-    window.location.reload()
+    const newPlan = readData()
+    console.log(newPlan)
+    // Jtz ab zum Server als neuer Eintrag
 }
 
 function changePlan(){
     console.log('Plan will be updated')
-    window.location.reload()
+    const updatedPlan = readData()
+    console.log(updatedPlan)
 }
 
 function deletePlan(){
     let confirmation = window.confirm('Do you really want to delete this plan?')
     if (confirmation){
         console.log('Plan will be deleted')
-        window.location.reload()
+        // Plan nach PK = planID löschen, sowohl aus irrigationPlans als auch planXChannel
     } else {
         console.log("Plan won't be deleted")
     }
     
 }
+
+function readData() {
+    let planObj = document.getElementById('planner').planObj
+    let arr = document.getElementById('planner').weekArr
+
+    if(arr[0].children[0].checked) {
+        // planObj.monday = 
+        planObj.monDuration = arr[0].children[5].valueAsNumber
+    } else {
+        planObj.monday = null
+        planObj.monDuration = null
+    }
+
+    if(arr[1].children[0].checked) {
+        // planObj.tuesday = 
+        planObj.tueDuration = arr[1].children[5].valueAsNumber
+    } else {
+        planObj.tuesday = null
+        planObj.tueDuration = null
+    }
+
+    if(arr[2].children[0].checked) {
+        // planObj.wednesday = 
+        planObj.wedDuration = arr[2].children[5].valueAsNumber
+    } else {
+        planObj.wednesday = null
+        planObj.wedDuration = null
+    }
+
+    if(arr[3].children[0].checked) {
+        // planObj.thursday = 
+        planObj.thuDuration = arr[3].children[5].valueAsNumber
+    } else {
+        planObj.thursday = null
+        planObj.thuDuration = null
+    }
+
+    if(arr[4].children[0].checked) {
+        // planObj.friday = 
+        planObj.friDuration = arr[4].children[5].valueAsNumber
+    } else {
+        planObj.friday = null
+        planObj.friDuration = null
+    }
+
+    if(arr[5].children[0].checked) {
+        // planObj.saturday = 
+        planObj.satDuration = arr[5].children[5].valueAsNumber
+    } else {
+        planObj.saturday = null
+        planObj.satDuration = null
+    }
+
+    if(arr[6].children[0].checked) {
+        // planObj.sunday = 
+        planObj.sunDuration = arr[6].children[5].valueAsNumber
+    } else {
+        planObj.sunday = null
+        planObj.sunDuration = null
+    }
+    
+    return planObj
+}
+
+
 
 
