@@ -105,7 +105,6 @@ io.sockets.on("connection", function(Socket){
     console.log(JSON.stringify(data))
 
     console.log(JSON.stringify(await db.getAllEntities(data.tableName)))
-
       // send a message to the destination
 
      Socket.emit("fetchData" , JSON.stringify(await db.getAllEntities(data.tableName)));
