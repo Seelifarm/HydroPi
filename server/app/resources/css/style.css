@@ -3,6 +3,10 @@ body {
     background-color:black;
     color: white;
     overflow:hidden;
+    margin: 0;
+    background-image: url(/server/app/resources/img/HP_Logo.png);
+    background-position: 2% 13%;
+    background-repeat: no-repeat;
 }
 
 h1 {
@@ -12,6 +16,7 @@ h1 {
 }
 
 #grid-container {
+    margin: 8px;
     display: grid;
     grid-template-columns: minmax(0,1fr) 50%;
     grid-template-areas: 
@@ -62,9 +67,7 @@ footer{
     height: fit-content;
     width: 100%;
     color: white;
-    display: flex;
-    align-items: center;
-    justify-content: left;
+    text-align: right;
     font-weight: bold;
     font-size: small;
 }
