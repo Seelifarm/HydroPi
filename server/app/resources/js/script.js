@@ -20,6 +20,7 @@ function sendDataToServer3() {
     //Use this object to send data to the server
     var data = {
         planID: 8,
+        planName: "Custom Name",
         monday: null,
         monDuration: 100,
         tuesday: null,
@@ -39,13 +40,10 @@ function sendDataToServer3() {
    // document.getElementsById('testBtn').disabled = true
 }
 
-
-
-    socket.on("fetchData", function(data) {
-        console.log("kOMMT AN")
-        console.log(JSON.stringify(data))
-    });
-
+/* socket.on("fetchData", function(data) {
+    console.log("kOMMT AN")
+    parsing = JSON.parse(data)
+}); */
 
 function getDBTable(nameOfTable) {
 
@@ -60,16 +58,17 @@ function getDBTable(nameOfTable) {
     socket.emit("requestData", data);
 
    // document.getElementsById('testBtn').disabled = true
-
 }
 
-function createIrrigationPlan(pID,mon,monD,tue,tueD,wed,wedD,thu,thuD,fri,friD,sat,satD,sun,sunD) {
+function createIrrigationPlan(pID,pName,mon,monD,tue,tueD,wed,wedD,thu,thuD,fri,friD,sat,satD,sun,sunD) {
 
     //Use this object to send data to the server
 
     var data = {
 
         planID: pID,
+
+        planName : pName,
 
         monday: mon,
 

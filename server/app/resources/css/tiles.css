@@ -42,4 +42,5 @@
 
 .selectedTile{
     background-color: white;
+    border-color: rgb(0, 153, 254);
 }
