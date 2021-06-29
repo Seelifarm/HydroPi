@@ -23,6 +23,7 @@ from os.path import abspath
 
 pathname = abspath('../app.js')
 pathname2 = abspath('../')
+pathname3 = abspath('sensor.py')
 
 # Does db exist?
 if os.path.exists("database.db"):
@@ -92,6 +93,11 @@ else:
     print("Preparing HydroPi for your RaspberryPi ...")
     subprocess.run(['sudo apt install nodejs'], shell=True)
     subprocess.run(['sudo apt install npm'], shell=True)
+    subprocess.run(['sudo raspi-config nonint do_spi 1'], shell=True)
+    subprocess.run(['sudo git clone git://github.com/doceme/py-spidev'], shell=True)
+    subprocess.run(['sudo python3 py-spidev/setup.py install'], shell=True)
+    subprocess.run(['sudo rm -r py-spidev'], shell=True)
+
     print("Preparing modules ... ")
     subprocess.run(['sudo npm install --prefix ' + pathname2 + ' express'], shell=True)
     subprocess.run(['sudo npm install --prefix ' + pathname2 + ' socket.io'], shell=True)
@@ -127,6 +133,7 @@ else:
     print("★ Prepared the database.")
     print("★ ")
     print("★ Starting NodeJS server ...")
+    subprocess.run(['sudo python3 ' + pathname3], shell=True)
     subprocess.run(['sudo node ' + pathname], shell=True)
 
     # Verbindung beenden
