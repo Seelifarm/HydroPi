@@ -72,46 +72,56 @@ io.sockets.on("connection", function(Socket){
 
 
 
+  //DB interfaces for table irrigationPlans
   Socket.on("createPlan", async function(data){
-
-    console.log("Insert")
-
-    console.log(JSON.stringify(data))
-
     await db.insertEntity('irrigationPlans', data)
-
-    // switch (data.tableName) {
-
-    //   case "irrigationPlans":
-
-    //     await db.insertEntity(data.tableName, data) 
-
-    //     break;
-
-    
-
-    //   default:
-
-    //     break;
-
-    //    }
-
   });
 
+  Socket.on("updatePlan", async function(data){
+    await db.updateEntity('irrigationPlans', 'planID', data.planID, data)
+  });
 
+  Socket.on("deletePlan", async function(data){
+    await db.deleteEntity('irrigationPlans', 'planID', data.planID)
+  });
 
+  //DB update interface for channels
+  Socket.on("updateChannels", async function(data){
+    await db.updateEntity('channels', 'channelID', data.channelID, data)
+  });
+
+  //DB interfaces for table planXChannel
+  Socket.on("createPXC", async function(data){
+    await db.insertEntity('planXChannel', data)
+  });
+
+  Socket.on("updatePXC", async function(data){
+    await db.updateEntity('planXChannel', 'planID', data.planID, data)
+  });
+
+  Socket.on("deletePXCByPID", async function(data){
+    await db.deleteEntity('planXChannel', 'planID', data.planID)
+  });
+
+  Socket.on("deleteSpecificInPXC", async function(data){
+    await db.deleteSpecificEntity('planXChannel', 'planID', data.planID, 'channelID', data.channelID)
+  });
+
+  //Data to client as JSON
   Socket.on("requestData", async function(data){
-
-    console.log(JSON.stringify(data))
-
-    console.log(JSON.stringify(await db.getAllEntities(data.tableName)))
-      // send a message to the destination
-
-     Socket.emit("fetchData" , JSON.stringify(await db.getAllEntities(data.tableName)));
-
+    // send a message to the destination
+    Socket.emit("fetchChannels" , JSON.stringify(await db.getAllEntities(data.tableName)));
+    Socket.emit("fetchIrrigationPlans" , JSON.stringify(await db.getAllEntities(data.tableName)));
+    Socket.emit("fetchPlanXChannel" , JSON.stringify(await db.getAllEntities(data.tableName)));
+    Socket.emit("fetchSensorLog" , JSON.stringify(await db.getAllEntities(data.tableName)));
+    Socket.emit("fetchIrrigationLog" , JSON.stringify(await db.getAllEntities(data.tableName)));
   });
-
 });
+  
+
+
+
+
 
 
 

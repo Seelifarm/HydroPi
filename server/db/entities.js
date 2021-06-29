@@ -17,6 +17,10 @@ function deleteEntity(entityName, colName, value) {
     return knex(entityName).where(colName, value).del();
 }
 
+function deleteSpecificEntity(entityName, colName, value, colName2, value2) {
+    return knex(entityName).where(colName, value).andWhere(colName2, value2).del();
+}
+
 function  updateEntity(entityName, colName, value, entity) {
     return knex(entityName).where(colName, value).update(entity);
 }
@@ -25,6 +29,7 @@ module.exports = {
     insertEntity,
     getEntity,
     getAllEntities,
+    deleteSpecificEntity,
     deleteEntity,
     updateEntity
 }
