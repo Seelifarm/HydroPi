@@ -17,6 +17,10 @@ socket.on("fetchIrrigationPlans", function(data) {
         div.className = 'tiles irrigationTile'
         div.textContent = element.planName
         div.onclick = () => {
+            if(selectedTile) {
+                selectedTile.style.borderColor = 'white'
+            }
+            
             plan(element)
             div.style.borderColor = 'rgb(0, 153, 254)'
             selectedTile = div
@@ -25,8 +29,6 @@ socket.on("fetchIrrigationPlans", function(data) {
         irrigationPlans.appendChild(div)
     });
 });
-    
-getDBTable('channels')
 
 socket.on('fetchChannels', data => {
     let valves = document.getElementById('valveWrapper')
@@ -38,12 +40,27 @@ socket.on('fetchChannels', data => {
         let div = document.createElement('div')
         div.className = 'tiles valveTile'
         div.textContent = element.name
-
+        if(element.active == 1){
+            div.style.backgroundImage = "url('resources/img/valve_active.svg')"
+            div.style.borderColor = 'rgb(0, 153, 254)'
+        } else {
+            div.style.backgroundImage = "url('resources/img/valve.svg')"
+            div.style.borderColor = 'white'
+        }
         valves.appendChild(div)
     })
-
 })
 
+function updateChannels() {
+    getDBTable('channels')
+    setInterval(() => {
+        if(document.getElementById('valveWrapper')){
+            getDBTable('channels')
+        }
+    }, 1000)
+}
+
+updateChannels()
 
 function removeAllChildNodes(parent) {
     while (parent.firstChild) {

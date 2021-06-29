@@ -28,6 +28,10 @@ function getDBTable(nameOfTable) {
    // document.getElementsById('testBtn').disabled = true
 }
 
+function test () {
+    socket.emit("updateChannels", {channelID: 2, name: 'Custom Name', active: 1})
+}
+ 
 
 
 

@@ -1,7 +1,7 @@
 class Planner extends HTMLElement {
     planObj = {
         //Hier von allen Plans die höchste ID finden und + 1
-        planID: planArr[planArr.length - 1].planID + 1,
+        planID: getLastPlanID(),
         planName: "New Plan",
         monday: null,
         monDuration: 100,
@@ -185,6 +185,14 @@ class Planner extends HTMLElement {
 }
 
 window.customElements.define('my-planner', Planner)
+
+function getLastPlanID() {
+    if(planArr.length != 0){
+        return planArr[planArr.length - 1].planID + 1
+    } else {
+        return 0
+    }
+}
 
 function plan(planObj) {
     //Remove any underlaying elements
