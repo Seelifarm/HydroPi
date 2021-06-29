@@ -110,21 +110,28 @@ io.sockets.on("connection", function(Socket){
   //Data to client as JSON
   Socket.on("requestData", async function(data){
     // send a message to the destination
-    Socket.emit("fetchChannels" , JSON.stringify(await db.getAllEntities(data.tableName)));
-    Socket.emit("fetchIrrigationPlans" , JSON.stringify(await db.getAllEntities(data.tableName)));
-    Socket.emit("fetchPlanXChannel" , JSON.stringify(await db.getAllEntities(data.tableName)));
-    Socket.emit("fetchSensorLog" , JSON.stringify(await db.getAllEntities(data.tableName)));
-    Socket.emit("fetchIrrigationLog" , JSON.stringify(await db.getAllEntities(data.tableName)));
+    switch (data.tableName) {
+      case 'channels':
+        Socket.emit("fetchChannels" , JSON.stringify(await db.getAllEntities(data.tableName)));
+        break;
+      case 'irrigationPlans':
+        Socket.emit("fetchIrrigationPlans" , JSON.stringify(await db.getAllEntities(data.tableName)));
+        break;
+      case 'planXChannel':
+        Socket.emit("fetchPlanXChannel" , JSON.stringify(await db.getAllEntities(data.tableName)));
+        break;
+      case 'sensorLog':
+        Socket.emit("fetchSensorLog" , JSON.stringify(await db.getAllEntities(data.tableName)));
+        break;
+      case 'irrigationLog':
+        Socket.emit("fetchIrrigationLog" , JSON.stringify(await db.getAllEntities(data.tableName)));
+        break;
+      default:
+        break;
+    }
   });
 });
   
-
-
-
-
-
-
-
 // Database
 
 app.use(express.urlencoded({extended: false}));

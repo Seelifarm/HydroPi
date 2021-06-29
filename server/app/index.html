@@ -19,8 +19,9 @@
         </div>
         <div id="irrigationPlans">
             <h1>Irrigation Plans</h1>
-            <div class="tiles addTile" onclick="plan(false)">&#43;</div>
-           <!-- <button id ="testBtn" onclick="sendDataToServer2()">Platscher</button>-->
+            <div id="irrigationPlanWrapper">
+                <div id= "addTile" class="tiles addTile" onclick="plan(false)">&#43;</div>
+            </div>
         </div>
         <div id="humidity">
             <h1>Humidity</h1>
@@ -32,8 +33,6 @@
         <div id="valves">
             <h1>Valves</h1>
             <div id="valveWrapper">
-                <div class="tiles valveTile" style="background-color: black;">Valve 1</div>
-                <div class="tiles valveTile" style="background-image: url(resources/img/valve_active.svg);">Valve 2</div>
             </div>
         </div>
     </div>

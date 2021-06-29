@@ -1,7 +1,8 @@
 class Planner extends HTMLElement {
     planObj = {
         //Hier von allen Plans die höchste ID finden und + 1
-        planID: 0,
+        planID: planArr[planArr.length - 1].planID + 1,
+        planName: "New Plan",
         monday: null,
         monDuration: 100,
         tuesday: null,
@@ -18,17 +19,19 @@ class Planner extends HTMLElement {
         sunDuration: 100
     }
 
-    //Boolean to see if plan already exists in db
+    //Boolean to see if plan already existed or will be created
     change = false
-
     //Contains all day-divs for easy access
     weekArr = []
 
-    constructor(change) {
+    constructor(planObj) {
         super()
-        this.change = change
+        if (planObj) {
+            this.planObj = planObj
+            this.change = true
+        }
+
         this.id = 'planner'
- 
         this.createHeadline()
         this.createValves([{name: 'Valve 1'},{name: 'Valve 2'}])
         this.createWeek()
@@ -183,7 +186,7 @@ class Planner extends HTMLElement {
 
 window.customElements.define('my-planner', Planner)
 
-function plan(change) {
+function plan(planObj) {
     //Remove any underlaying elements
     let humidity = document.getElementById('humidity')
     if (humidity) {
@@ -201,7 +204,7 @@ function plan(change) {
     }
     
     //Adds a new custom HTML-Element as grid item and changes the template areas accordingly
-    planner = new Planner(change)
+    planner = new Planner(planObj)
 
     const container = document.getElementById('grid-container')
     container.style.gridTemplateAreas = '"clock clock" "irrigation planner"'
@@ -241,7 +244,7 @@ function readData() {
         planObj.monDuration = arr[0].children[5].valueAsNumber
     } else {
         planObj.monday = null
-        planObj.monDuration = null
+        planObj.monDuration = 0
     }
 
     if(arr[1].children[0].checked) {
@@ -249,7 +252,7 @@ function readData() {
         planObj.tueDuration = arr[1].children[5].valueAsNumber
     } else {
         planObj.tuesday = null
-        planObj.tueDuration = null
+        planObj.tueDuration = 0
     }
 
     if(arr[2].children[0].checked) {
@@ -257,7 +260,7 @@ function readData() {
         planObj.wedDuration = arr[2].children[5].valueAsNumber
     } else {
         planObj.wednesday = null
-        planObj.wedDuration = null
+        planObj.wedDuration = 0
     }
 
     if(arr[3].children[0].checked) {
@@ -265,7 +268,7 @@ function readData() {
         planObj.thuDuration = arr[3].children[5].valueAsNumber
     } else {
         planObj.thursday = null
-        planObj.thuDuration = null
+        planObj.thuDuration = 0
     }
 
     if(arr[4].children[0].checked) {
@@ -273,7 +276,7 @@ function readData() {
         planObj.friDuration = arr[4].children[5].valueAsNumber
     } else {
         planObj.friday = null
-        planObj.friDuration = null
+        planObj.friDuration = 0
     }
 
     if(arr[5].children[0].checked) {
@@ -281,7 +284,7 @@ function readData() {
         planObj.satDuration = arr[5].children[5].valueAsNumber
     } else {
         planObj.saturday = null
-        planObj.satDuration = null
+        planObj.satDuration = 0
     }
 
     if(arr[6].children[0].checked) {
@@ -289,7 +292,7 @@ function readData() {
         planObj.sunDuration = arr[6].children[5].valueAsNumber
     } else {
         planObj.sunday = null
-        planObj.sunDuration = null
+        planObj.sunDuration = 0
     }
     
     return planObj

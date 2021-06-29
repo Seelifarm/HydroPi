@@ -4,8 +4,9 @@ body {
     color: white;
     overflow:hidden;
     margin: 0;
-    background-image: url(/server/app/resources/img/HP_Logo.png);
-    background-position: 2% 13%;
+    background-image: url(../img/HP_Logo.png);
+    background-position: 50% 2.5%;
+    background-size: 16%;
     background-repeat: no-repeat;
 }
 
