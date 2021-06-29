@@ -45,6 +45,12 @@ h1 {
     font-size: 90px;
 }
 
+#humidityWrapper {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
 #valves {
     grid-area: valves;
 }

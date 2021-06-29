@@ -60,19 +60,19 @@ else:
     sql3 = "CREATE TABLE irrigationPlans(" \
           "planID INTEGER PRIMARY KEY, " \
           "planName TEXT, " \
-          "monday TIMESTAMP, " \
+          "monday TEXT, " \
           "monDuration INTEGER," \
-          "tuesday TIMESTAMP, " \
+          "tuesday TEXT, " \
           "tueDuration INTEGER," \
-          "wednesday TIMESTAMP, " \
+          "wednesday TEXT, " \
           "wedDuration INTEGER," \
-          "thursday TIMESTAMP, " \
+          "thursday TEXT, " \
           "thuDuration INTEGER," \
-          "friday TIMESTAMP, " \
+          "friday TEXT, " \
           "friDuration INTEGER," \
-          "saturday TIMESTAMP, " \
+          "saturday TEXT, " \
           "satDuration INTEGER," \
-          "sunday TIMESTAMP, " \
+          "sunday TEXT, " \
           "sunDuration INTEGER)"
     cursor.execute(sql3)
 

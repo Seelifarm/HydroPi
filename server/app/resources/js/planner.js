@@ -33,7 +33,7 @@ class Planner extends HTMLElement {
 
         this.id = 'planner'
         this.createHeadline()
-        this.createValves([{name: 'Valve 1'},{name: 'Valve 2'}])
+        this.createValves(valveArr)
         this.createWeek()
         this.createSubmit()
     }
