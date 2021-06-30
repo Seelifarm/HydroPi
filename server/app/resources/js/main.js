@@ -3,6 +3,9 @@ let planArr
 // So i can get all Valves in the Planner with their proper ID's 
 let valveArr 
 
+// So i can get all Valves that are included in the selected Plan
+let activeValveArr
+
 // So i can deselect it once you click on something else
 let selectedTile
   
@@ -20,7 +23,7 @@ socket.on("fetchIrrigationPlans", function(data) {
             if(selectedTile) {
                 selectedTile.style.borderColor = 'white'
             }
-            
+            getActiveValves(element)
             plan(element)
             div.style.borderColor = 'rgb(0, 153, 254)'
             selectedTile = div
@@ -29,6 +32,15 @@ socket.on("fetchIrrigationPlans", function(data) {
         irrigationPlans.appendChild(div)
     });
 });
+
+function getActiveValves(planObj) {
+    socket.emit('getSpecificPXCByPID', planObj)
+}
+
+socket.on('fetchSpecificPXC', data => {
+    activeValveArr = JSON.parse(data)
+    console.log(activeValveArr)
+})
 
 socket.on('fetchChannels', data => {
     let valves = document.getElementById('valveWrapper')

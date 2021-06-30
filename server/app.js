@@ -130,8 +130,12 @@ io.sockets.on("connection", function(Socket){
         break;
     }
   });
+
+  Socket.on('getSpecificPXCByPID', async function(data) {
+    Socket.emit('fetchSpecificPXC', JSON.stringify(await db.getEntity('planXChannel', 'planID', data.planID)))
+  })
 });
-  
+
 // Database
 
 app.use(express.urlencoded({extended: false}));

@@ -125,10 +125,13 @@ else:
     print("★ You successfully connected " + inputs + " gadgets.")
     print("★")
 
+    counter = 1
     for x in range(int(inputs)):
         # Datensatz erzeugen
-        sql6 = "INSERT INTO channels(name, active) VALUES('new', 0)"
+        sql6 = "INSERT INTO channels(name, active) VALUES(" + str(counter) + ", 0)"
+        
         cursor.execute(sql6)
+        counter += 1
         connection.commit()
     print("★ Prepared the database.")
     print("★ ")

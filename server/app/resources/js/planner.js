@@ -21,6 +21,7 @@ class Planner extends HTMLElement {
 
     //Boolean to see if plan already existed or will be created
     change = false
+
     //Contains all day-divs for easy access
     weekArr = []
 
@@ -33,7 +34,7 @@ class Planner extends HTMLElement {
 
         this.id = 'planner'
         this.createHeadline()
-        this.createValves(valveArr)
+        this.createValves()
         this.createWeek()
         this.createSubmit()
     }
@@ -49,31 +50,47 @@ class Planner extends HTMLElement {
         this.appendChild(headline)
     }
 
-    createValves(arr){
-        let valvesArr = arr
+    createValves(){
         let question = document.createElement('h2')
         question.textContent = 'Which valves should be included?'
         this.appendChild(question)
+
         let valves = document.createElement('div')
         valves.style.width = '100%'
         valves.style.display = 'flex'
         valves.style.justifyContent = 'center'
 
-        valvesArr.forEach(element => {
-            let check = document.createElement('input')
-            check.id = element.name
-            check.type = 'checkbox'
-            valves.appendChild(check)
-        
-            let label = document.createElement('label')
-            label.id = element.name + 'Lbl'
-            label.htmlFor = element.name
-            label.textContent = element.name
-            label.style.margin = '2px'
-            valves.appendChild(label)
-
-        });
-
+        if(this.change){
+            // TODO hier noch die Checkboxen aus activeValves checken
+            valveArr.forEach(element => {
+                let check = document.createElement('input')
+                check.id = element.name
+                check.type = 'checkbox'
+                valves.appendChild(check)
+            
+                let label = document.createElement('label')
+                label.id = element.name + 'Lbl'
+                label.htmlFor = element.name
+                label.textContent = element.name
+                label.style.margin = '2px'
+                valves.appendChild(label)
+            });
+        } else {
+            valveArr.forEach(element => {
+                let check = document.createElement('input')
+                check.id = element.name
+                check.type = 'checkbox'
+                valves.appendChild(check)
+            
+                let label = document.createElement('label')
+                label.id = element.name + 'Lbl'
+                label.htmlFor = element.name
+                label.textContent = element.name
+                label.style.margin = '2px'
+                valves.appendChild(label)
+            });
+        }
+    
         this.appendChild(valves)
     }
 
@@ -222,8 +239,9 @@ function plan(planObj) {
 function createPlan() {
     console.log('Plan will be saved')
     const newPlan = readData()
-    console.log(newPlan)
-    // Jtz ab zum Server als neuer Eintrag
+    socket.emit('createPlan', newPlan)
+    createPlanXChannel()
+    window.location.reload()
 }
 
 function changePlan(){
@@ -246,9 +264,11 @@ function deletePlan(){
 function readData() {
     let planObj = document.getElementById('planner').planObj
     let arr = document.getElementById('planner').weekArr
+    let time
 
     if(arr[0].children[0].checked) {
-        // planObj.monday = 
+        time = convertTime(arr[0].children[3].value.split(':'))
+        planObj.monday = `* ${time[1]} ${time[0]} * * 1`
         planObj.monDuration = arr[0].children[5].valueAsNumber
     } else {
         planObj.monday = null
@@ -256,7 +276,8 @@ function readData() {
     }
 
     if(arr[1].children[0].checked) {
-        // planObj.tuesday = 
+        time = convertTime(arr[1].children[3].value.split(':'))
+        planObj.tuesday = `* ${time[1]} ${time[0]} * * 2`
         planObj.tueDuration = arr[1].children[5].valueAsNumber
     } else {
         planObj.tuesday = null
@@ -264,7 +285,8 @@ function readData() {
     }
 
     if(arr[2].children[0].checked) {
-        // planObj.wednesday = 
+        time = convertTime(arr[2].children[3].value.split(':'))
+        planObj.wednesday = `* ${time[1]} ${time[0]} * * 3`
         planObj.wedDuration = arr[2].children[5].valueAsNumber
     } else {
         planObj.wednesday = null
@@ -272,7 +294,8 @@ function readData() {
     }
 
     if(arr[3].children[0].checked) {
-        // planObj.thursday = 
+        time = convertTime(arr[3].children[3].value.split(':'))
+        planObj.thursday = `* ${time[1]} ${time[0]} * * 4`
         planObj.thuDuration = arr[3].children[5].valueAsNumber
     } else {
         planObj.thursday = null
@@ -280,7 +303,8 @@ function readData() {
     }
 
     if(arr[4].children[0].checked) {
-        // planObj.friday = 
+        time = convertTime(arr[4].children[3].value.split(':'))
+        planObj.friday = `* ${time[1]} ${time[0]} * * 5`
         planObj.friDuration = arr[4].children[5].valueAsNumber
     } else {
         planObj.friday = null
@@ -288,7 +312,8 @@ function readData() {
     }
 
     if(arr[5].children[0].checked) {
-        // planObj.saturday = 
+        time = convertTime(arr[5].children[3].value.split(':'))
+        planObj.saturday = `* ${time[1]} ${time[0]} * * 6`
         planObj.satDuration = arr[5].children[5].valueAsNumber
     } else {
         planObj.saturday = null
@@ -296,7 +321,8 @@ function readData() {
     }
 
     if(arr[6].children[0].checked) {
-        // planObj.sunday = 
+        time = convertTime(arr[6].children[3].value.split(':'))
+        planObj.tuesday = `* ${time[1]} ${time[0]} * * 0`
         planObj.sunDuration = arr[6].children[5].valueAsNumber
     } else {
         planObj.sunday = null
@@ -304,6 +330,29 @@ function readData() {
     }
     
     return planObj
+}
+
+//If the first character is '0', remove it
+function convertTime(arr) {
+       for (let i = 0; i < arr.length; i++) {
+           if(arr[i][0] === '0'){
+                arr[i] = arr[i].slice(1)
+           }
+       }
+       return arr
+}
+
+function createPlanXChannel() {
+    let div = document.getElementById('planner').children[2]
+    let planID = document.getElementById('planner').planObj.planID
+    let number = valveArr.length
+     for (let i = 0; i < number ; i++) {
+                if(div.children[i*2].checked){
+                let valve = valveArr[i] 
+                console.log({channelID: valve.channelID, planID: planID}) 
+                socket.emit('createPXC', {channelID: valve.channelID, planID: planID})
+                }       
+    }  
 }
 
 
