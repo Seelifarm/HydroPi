@@ -2,6 +2,7 @@ import RPi.GPIO as GPIO
 import time
 import argparse
 import sys
+import sqlite3
 
 # ! /usr/bin/python
 
@@ -23,6 +24,10 @@ Relay_Ch1 = 26
 Relay_Ch2 = 20
 Relay_Ch3 = 21
 
+#DB Connection
+connection = sqlite3.connection("database.db")
+cursor = connection.cursor()
+
 GPIO.setwarnings(False)
 GPIO.setmode(GPIO.BCM)
 
@@ -30,36 +35,57 @@ GPIO.setup(Relay_Ch1, GPIO.OUT)
 GPIO.setup(Relay_Ch2, GPIO.OUT)
 GPIO.setup(Relay_Ch3, GPIO.OUT)
 
-print("Relay Module is set up")
+print("★ Relay Module is set up")
 
 # Logic
 try:
     if "1" in channel:
         GPIO.output(Relay_Ch1, GPIO.LOW)
-        print("Channel 1 opened")
+        sql = "UPDATE channels SET active = 1 WHERE channelID = 1"
+        cursor.execute(sql)
+        connection.commit()
+        print("★ Channel 1 opened")
 
     if "2" in channel:
         GPIO.output(Relay_Ch2, GPIO.LOW)
-        print("Channel 2 opened")
+        sql = "UPDATE channels SET active = 1 WHERE channelID = 2"
+        cursor.execute(sql)
+        connection.commit()
+        print("★ Channel 2 opened")
 
     if "3" in channel:
         GPIO.output(Relay_Ch3, GPIO.LOW)
-        print("Channel 3 opened")
+        sql = "UPDATE channels SET active = 1 WHERE channelID = 3"
+        cursor.execute(sql)
+        connection.commit()
+        print("★ Channel 3 opened")
 
     time.sleep(duration)
 
     if "1" in channel:
         GPIO.output(Relay_Ch1, GPIO.HIGH)
-        print("Channel 1 closed")
+        sql = "UPDATE channels SET active = 0 WHERE channelID = 1"
+        cursor.execute(sql)
+        connection.commit()
+        print("★ Channel 1 closed")
 
     if "2" in channel:
         GPIO.output(Relay_Ch2, GPIO.HIGH)
-        print("Channel 2 closed")
+        sql = "UPDATE channels SET active = 0 WHERE channelID = 2"
+        cursor.execute(sql)
+        connection.commit()
+        print("★ Channel 2 closed")
 
     if "3" in channel:
         GPIO.output(Relay_Ch3, GPIO.HIGH)
-        print("Channel 3 closed")
-
+        sql = "UPDATE channels SET active = 0 WHERE channelID = 3"
+        cursor.execute(sql)
+        connection.commit()
+        print("★ Channel 3 closed")
+     
+     
+     connection.close()
+     
 except:
-    print("except")
+    print("★ except")
     GPIO.cleanup()

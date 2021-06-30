@@ -95,12 +95,27 @@ io.sockets.on("connection", function(Socket){
   });
 
   Socket.on("updatePlan", async function(data){
+
+    // delete old pXC
+    await db.deleteEntity('planXChannel', 'planID', data.planID)
+   
+
+    arr = [] 
+    // insert new pXC
+    data.channels.forEach(async element => {
+      arr.push(element.channelID)
+      await db.insertEntity('planXChannel', element)
+    })
+
+    let valvesString = arr.join('+')
+
     await db.updateEntity('irrigationPlans', 'planID', data.planID, data)
-    scheduleCronForPlan(data, "update")
+    scheduleCronForPlan(data, "update", valvesString)
   });
 
   Socket.on("deletePlan", async function(data){
     await db.deleteEntity('irrigationPlans', 'planID', data.planID)
+    await db.deleteEntity('planXChannel', 'planID', data.planID)
     scheduleCronForPlan(data, "delete")
   });
 
@@ -109,7 +124,7 @@ io.sockets.on("connection", function(Socket){
     await db.updateEntity('channels', 'channelID', data.channelID, data)
   });
 
-  //DB interfaces for table planXChannel
+  //DB interfaces for table planXChannel (TODO: delete, done in plan methods)
   Socket.on("createPXC", async function(data){
     await db.insertEntity('planXChannel', data)
   });
