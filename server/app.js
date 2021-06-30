@@ -23,6 +23,8 @@ var CronJobManager = require('cron-job-manager')
 var PythonShell = require('python-shell')
 
 var socket = require('socket.io')
+const { weekdays } = require('moment')
+const { duration } = require('tarn/dist/utils')
 
 var server = http.createServer(app)
 
@@ -75,14 +77,17 @@ io.sockets.on("connection", function(Socket){
   //DB interfaces for table irrigationPlans
   Socket.on("createPlan", async function(data){
     await db.insertEntity('irrigationPlans', data)
+    scheduleCronForPlan(data, "create")
   });
 
   Socket.on("updatePlan", async function(data){
     await db.updateEntity('irrigationPlans', 'planID', data.planID, data)
+    scheduleCronForPlan(data, "update")
   });
 
   Socket.on("deletePlan", async function(data){
     await db.deleteEntity('irrigationPlans', 'planID', data.planID)
+    scheduleCronForPlan(data, "delete")
   });
 
   //DB update interface for channels
@@ -131,6 +136,124 @@ io.sockets.on("connection", function(Socket){
     }
   });
 });
+
+
+
+// Manager for creating/updating/deleting cronjobs for irrigation plans
+async function scheduleCronForPlan(data, action){
+
+  // only needed for create/update
+  let valvesString = getValvesForPlan(data)
+
+  weekdays = [data.monday, data.tuesday, data.wednesday, data.thursday, data.friday, data.saturday, data.sunday]
+
+  weekdays.forEach(function(day, index) {
+
+    cronID = data.planID
+    // only needed for create/update
+    var duration 
+
+    switch (index) {
+      case 0:
+        cronID += "-Mon"
+        duration = data.monDuration
+        break;
+      case 1:
+        cronID += "-Tue"
+        duration = data.tueDuration
+        break;
+      case 2:
+        cronID += "-Wed"
+        duration = data.wedDuration
+        break;
+      case 3:
+        cronID += "-Thu"
+        duration = data.thuDuration
+        break;
+      case 4:
+        cronID += "-Fri"
+        duration = data.friDuration
+        break;
+      case 5:
+        cronID += "-Sat"
+        duration = data.satDuration
+        break;  
+      case 6:
+        cronID += "-Sun"
+        duration = data.sunDuration
+        break;    
+      default:
+        console.log("Invalid ID")
+        break;
+    }
+
+    //if != null
+    if(day){
+
+      switch (action) {
+        case "create":
+          manager.add(cronID, day, function() {
+            createCronJob(valvesString, duration)
+          })
+          manager.start(cronID);
+          break;
+        case "update":
+          manager.update(cronID, day, function() {
+            createCronJob(valvesString, duration)
+          })
+          break;
+        case "delete":
+          manager.deleteJob(cronID);
+          break;
+        default:
+          console.log("Invalid action. Choose from: create, update, delete")
+          break;
+      }
+
+    } else {
+      if(action == "update" && manager.exists(cronID)){
+        manager.deleteJob(cronID)
+      }
+    }
+  })
+}
+
+
+function getValvesForPlan(data){
+  //Get all used valves in this plan as [channelID, channelID, ...]
+  let valves = await db.getEntity('planXChannel', 'planID', data.planID)
+  if(valves.length != 0){
+    for (let index = 0; index < valves.length; index++) {
+      valves[index] = valves[index].channelID.stringify
+    }
+    console.log(valves)
+  } else {
+    console.log('planXChannel Data seems to be empty')
+  }
+
+  var valvesString = "+".join(valves)
+  console.log(valvesString)
+  return valvesString
+}
+
+
+// Cronjob
+function createCronJob(valvesString, duration) {
+  let options = {
+    mode: 'text',
+    pythonPath: 'python3',
+    pythonOptions: ['-u'], // get print results in real-time
+    scriptPath: './scripts',
+    args: ['--c='+"'"+valvesString+"'", '--d='+duration]
+  };
+  
+  PythonShell.run('irrigationController.py', options, function (err, results) {
+    if (err) throw err;
+    // results is an array consisting of messages collected during execution
+    console.log('results: %j', results);
+  });
+}
+
   
 // Database
 
