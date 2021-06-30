@@ -16,7 +16,8 @@ class Planner extends HTMLElement {
         saturday: null,
         satDuration: 100,
         sunday: null,
-        sunDuration: 100
+        sunDuration: 100,
+        channels: []
     }
 
     //Boolean to see if plan already existed or will be created
@@ -238,11 +239,11 @@ function plan(planObj) {
 
 function createPlan() {
     console.log('Plan will be saved')
-    const newPlan = readData()
-    socket.emit('createPlan', newPlan)
-    createPlanXChannel()
-    window.location.reload()
+    let plan = readData()
+    plan.channels = createPlanXChannel()
+    socket.emit('createPlan', plan)
 }
+
 
 function changePlan(){
     console.log('Plan will be updated')
@@ -345,14 +346,14 @@ function convertTime(arr) {
 function createPlanXChannel() {
     let div = document.getElementById('planner').children[2]
     let planID = document.getElementById('planner').planObj.planID
-    let number = valveArr.length
-     for (let i = 0; i < number ; i++) {
+    let arr = []
+     for (let i = 0; i < valveArr.length ; i++) {
                 if(div.children[i*2].checked){
-                let valve = valveArr[i] 
-                console.log({channelID: valve.channelID, planID: planID}) 
-                socket.emit('createPXC', {channelID: valve.channelID, planID: planID})
-                }       
+                let valve = {channelID: valveArr[i].channelID, planID: planID}
+                arr.push(valve)
+                }
     }  
+    return arr
 }
 
 
