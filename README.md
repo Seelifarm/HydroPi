@@ -11,7 +11,7 @@ created by @Seelifarm @B4ttlestriker @kv021 @Kohai-san
 
 ## Installation Guide
 * Clone the [HydroPi](https://github.com/Seelifarm/HydroPi) repository on your RaspberryPi (recommended via HTTP).
-* Open Terminal and navigate to "_PathToFolder/HydroPi/server/scripts/_" and type _"sudo python3 boot.py"_ to launch the installer with admin rights.
+* Open Terminal and navigate to `PathToFolder/HydroPi/server/scripts/` and type `sudo python3 boot.py` to launch the installer with admin rights.
 * Wait for the installer to finish.
 * Answer the question and complete the setup.
 * Open the HydroPi website.
