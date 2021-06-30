@@ -42,6 +42,7 @@ created by @Seelifarm @B4ttlestriker @kv021 @Kohai-san
 
 
 ## Road Map for future updates
+* Android and IOS application
 * Additional functionalities at the website (rename, additional sensors and valves)
   * rename functions
   * weather api implementation
