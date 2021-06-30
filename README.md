@@ -3,7 +3,7 @@
 This is a program for [Raspberry Pi](https://www.raspberrypi.org/) that enables the user to control valves via a web interface and create automated irrigation plans. <br>
 Based on [Python](https://www.python.org/), JavaScript, HTML and CSS.
 
-Attention: This repo is for DIY lovers and by far not a single-click application for your smart home gadget.
+Attention: This repo is for DIY lovers and by far not a single-click application.
 
 <br> 
 Includes [NodeJS](https://nodejs.org/en/), [Express](https://expressjs.com/de/), [Knex.js](https://knexjs.org/), [Socket.io](https://socket.io/) and [SQLite3](https://www.sqlite.org/index.html). 
