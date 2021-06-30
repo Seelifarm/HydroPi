@@ -48,7 +48,7 @@ if __name__ == "__main__":
 
       ## sensor data array
       measurements = []
-      print("Starting humidity measurement")
+      print("★ Starting humidity measurement")
 
       while (len(measurements) <= 10):
         # get sensor data
@@ -58,26 +58,26 @@ if __name__ == "__main__":
         if (val > minThreshold):
           # if data is valid, append
           measurements.append(val)
-          print("Sensor measurement " + str(len(measurements)) + ": " + str(val))
+          print("★ Sensor measurement " + str(len(measurements)) + ": " + str(val))
 
         # wait time between next measurement
         time.sleep(delay)
 
       # calculate median
       median = statistics.median(measurements)
-      print("Median of measurements: " + str(median))
+      print("★ Median of measurements: " + str(median))
 
       # convert to percent
       humidityPercentage = convertToPercentage(median)
-      print("Humidity: " + str(humidityPercentage) + "%")
+      print("★ Humidity: " + str(humidityPercentage) + "%")
 
       # save to db
       insertIntoDb(humidityPercentage)
-      print("Humidity saved to DB")
+      print("★ Humidity saved to DB")
 
-      print("Measurement session complete. Next measurement in " + str(sessionDelay/60) + " minutes")
+      print("★ Measurement session complete. Next measurement in " + str(sessionDelay/60) + " minutes")
       time.sleep(sessionDelay)
 
 
   except KeyboardInterrupt:
-    print ("sensor.py closed")
+    print ("★ sensor.py closed")

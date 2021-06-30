@@ -24,6 +24,7 @@ from os.path import abspath
 pathname = abspath('../app.js')
 pathname2 = abspath('../')
 pathname3 = abspath('sensor.py')
+pathname4 = abspath('startSensor.sh')
 
 # Does db exist?
 if os.path.exists("database.db"):
@@ -38,6 +39,7 @@ if os.path.exists("database.db"):
     print("★")
     print("★ Starting server ...")
     time.sleep(2)
+    subprocess.run(['sudo bash ' + pathname4], shell=True)
     subprocess.run(['sudo node ' + pathname], shell=True)
 else:
     # Connect to new db
@@ -93,10 +95,8 @@ else:
     print("Preparing HydroPi for your RaspberryPi ...")
     subprocess.run(['sudo apt install nodejs'], shell=True)
     subprocess.run(['sudo apt install npm'], shell=True)
-    subprocess.run(['sudo raspi-config nonint do_spi 1'], shell=True)
-    subprocess.run(['sudo git clone git://github.com/doceme/py-spidev'], shell=True)
-    subprocess.run(['sudo python3 py-spidev/setup.py install'], shell=True)
-    subprocess.run(['sudo rm -r py-spidev'], shell=True)
+    subprocess.run(['sudo raspi-config nonint do_spi 0'], shell=True)
+    subprocess.run(['sudo python3 setupSpidev.py install'], shell=True)
 
     print("Preparing modules ... ")
     subprocess.run(['sudo npm install --prefix ' + pathname2 + ' express'], shell=True)
@@ -120,24 +120,22 @@ else:
     print("★")
     print("★ How many gadgets would you like to connect?")
     print("★")
-    inputs = input("★ Enter your amount: ")
+    inputs = input("★ Enter your amount(1-3): ")
     print("★")
     print("★ You successfully connected " + inputs + " gadgets.")
     print("★")
 
-    counter = 1
     for x in range(int(inputs)):
         # Datensatz erzeugen
-        sql6 = "INSERT INTO channels(name, active) VALUES(" + str(counter) + ", 0)"
-        
+        sql6 = "INSERT INTO channels(name, active) VALUES('new', 0)"
         cursor.execute(sql6)
-        counter += 1
         connection.commit()
     print("★ Prepared the database.")
     print("★ ")
     print("★ Starting NodeJS server ...")
-    subprocess.run(['sudo python3 ' + pathname3], shell=True)
+    subprocess.run(['sudo bash ' + pathname4], shell=True)
     subprocess.run(['sudo node ' + pathname], shell=True)
+
 
     # Verbindung beenden
     connection.close()
