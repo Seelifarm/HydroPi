@@ -39,7 +39,6 @@ function getActiveValves(planObj) {
 
 socket.on('fetchSpecificPXC', data => {
     activeValveArr = JSON.parse(data)
-    console.log(activeValveArr)
 })
 
 socket.on('fetchChannels', data => {

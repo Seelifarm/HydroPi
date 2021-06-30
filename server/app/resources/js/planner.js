@@ -17,7 +17,7 @@ class Planner extends HTMLElement {
         satDuration: 100,
         sunday: null,
         sunDuration: 100,
-        channels: []
+        channels: prepareValves()
     }
 
     //Boolean to see if plan already existed or will be created
@@ -25,6 +25,8 @@ class Planner extends HTMLElement {
 
     //Contains all day-divs for easy access
     weekArr = []
+
+    WEEKDAYS = [{name: 'Monday', number: 1},{name: 'Tuesday', number: 2},{name: 'Wednesday', number: 3},{name: 'Thursday', number: 4},{name: 'Friday', number: 5},{name: 'Saturday', number: 6},{name: 'Sunday', number: 0}]
 
     constructor(planObj) {
         super()
@@ -38,6 +40,7 @@ class Planner extends HTMLElement {
         this.createValves()
         this.createWeek()
         this.createSubmit()
+        updateCheckBoxes(this)
     }
 
     createHeadline(){
@@ -108,9 +111,7 @@ class Planner extends HTMLElement {
         weekdiv.style.display = 'flex'
         weekdiv.style.justifyContent = 'center'
 
-        const WEEKDAYS = [{name: 'Monday', number: 1},{name: 'Tuesday', number: 2},{name: 'Wednesday', number: 3},{name: 'Thursday', number: 4},{name: 'Friday', number: 5},{name: 'Saturday', number: 6},{name: 'Sunday', number: 0}]
-
-        WEEKDAYS.forEach(element => {
+        this.WEEKDAYS.forEach(element => {
             let day = document.createElement('div')
             day.style.width = `88px`
             day.style.height = 'fit-content'
@@ -212,7 +213,100 @@ function getLastPlanID() {
     }
 }
 
+function prepareValves() {
+    if(activeValveArr){
+        console.log(activeValveArr)
+        return activeValveArr
+    } else {
+        return []
+    }
+}
+
+function updateCheckBoxes(element){
+    
+    let planObj = element.planObj
+    let weekArr = element.weekArr
+    let time
+    if(element.change){
+        if (planObj.monday != null){
+            weekArr[0].children[0].checked = true
+            time = planObj.monday.split(' ')
+            console.log(time)
+            weekArr[0].children[3].value = `${convertTimeReversed(time[2])}:${convertTimeReversed(time[1])}`
+            weekArr[0].children[3].disabled = false
+            weekArr[0].children[5].value = planObj.monDuration
+            weekArr[0].children[5].disabled = false
+        }
+
+        if (planObj.tuesday != null){
+            weekArr[1].children[0].checked = true
+            time = planObj.tuesday.split(' ')
+            console.log(time)
+            weekArr[1].children[3].value = `${convertTimeReversed(time[2])}:${convertTimeReversed(time[1])}`
+            weekArr[1].children[3].disabled = false
+            weekArr[1].children[5].value = planObj.tueDuration
+            weekArr[1].children[5].disabled = false
+        }
+
+        if (planObj.wednesday != null){
+            weekArr[2].children[0].checked = true
+            time = planObj.wednesday.split(' ')
+            console.log(time)
+            weekArr[2].children[3].value = `${convertTimeReversed(time[2])}:${convertTimeReversed(time[1])}`
+            weekArr[2].children[3].disabled = false
+            weekArr[2].children[5].value = planObj.wedDuration
+            weekArr[2].children[5].disabled = false
+        }
+
+        if (planObj.thursday != null){
+            weekArr[3].children[0].checked = true
+            time = planObj.thursday.split(' ')
+            console.log(time)
+            weekArr[3].children[3].value = `${convertTimeReversed(time[2])}:${convertTimeReversed(time[1])}`
+            weekArr[3].children[3].disabled = false
+            weekArr[3].children[5].value = planObj.thuDuration
+            weekArr[3].children[5].disabled = false
+        }
+
+        if (planObj.friday != null){
+            weekArr[4].children[0].checked = true
+            time = planObj.friday.split(' ')
+            console.log(time)
+            weekArr[4].children[3].value = `${convertTimeReversed(time[2])}:${convertTimeReversed(time[1])}`
+            weekArr[4].children[3].disabled = false
+            weekArr[4].children[5].value = planObj.friDuration
+            weekArr[4].children[5].disabled = false
+        }
+
+        if (planObj.saturday != null){
+            weekArr[5].children[0].checked = true
+            time = planObj.saturday.split(' ')
+            console.log(time)
+            console.log(convertTimeReversed(time[1]))
+            weekArr[5].children[3].value = `${convertTimeReversed(time[2])}:${convertTimeReversed(time[1])}`
+            weekArr[5].children[3].disabled = false
+            weekArr[5].children[5].value = planObj.satDuration
+            weekArr[5].children[5].disabled = false
+        }
+
+        if (planObj.sunday != null){
+            weekArr[6].children[0].checked = true
+            time = planObj.sunday.split(' ')
+            console.log(time)
+            weekArr[6].children[3].value = `${convertTimeReversed(time[2])}:${convertTimeReversed(time[1])}:00`
+            weekArr[6].children[3].disabled = false
+            weekArr[6].children[5].value = planObj.sunDuration
+            weekArr[6].children[5].disabled = false
+        }
+
+    }
+}
+
 function plan(planObj) {
+    if(selectedTile) {
+        selectedTile.style.borderColor = 'white'
+    }
+
     //Remove any underlaying elements
     let humidity = document.getElementById('humidity')
     if (humidity) {
@@ -323,7 +417,7 @@ function readData() {
 
     if(arr[6].children[0].checked) {
         time = convertTime(arr[6].children[3].value.split(':'))
-        planObj.tuesday = `* ${time[1]} ${time[0]} * * 0`
+        planObj.sunday = `* ${time[1]} ${time[0]} * * 0`
         planObj.sunDuration = arr[6].children[5].valueAsNumber
     } else {
         planObj.sunday = null
@@ -343,6 +437,12 @@ function convertTime(arr) {
        return arr
 }
 
+function convertTimeReversed(str){
+    if(str.length == 1){
+        return '0' + str
+    } else return str
+}
+
 function createPlanXChannel() {
     let div = document.getElementById('planner').children[2]
     let planID = document.getElementById('planner').planObj.planID
@@ -355,7 +455,4 @@ function createPlanXChannel() {
     }  
     return arr
 }
-
-
-
 
