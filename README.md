@@ -6,7 +6,7 @@ Based on [Python](https://www.python.org/), JavaScript, HTML and CSS.
 Attention: This repo is for DIY lovers and by far not a single-click application.
 
 <br> 
-Includes [NodeJS](https://nodejs.org/en/), [Express](https://expressjs.com/de/), [Knex.js](https://knexjs.org/), [Socket.io](https://socket.io/) and [SQLite3](https://www.sqlite.org/index.html). 
+
 <br> 
 <br>
 created by @Seelifarm @B4ttlestriker @kv021 @Kohai-san
