@@ -248,6 +248,8 @@ function createPlan() {
 function changePlan(){
     console.log('Plan will be updated')
     const updatedPlan = readData()
+    updatedPlan.channels = createPlanXChannel()
+    socket.emit('updatePlan', updatedPlan)
     console.log(updatedPlan)
 }
 
@@ -255,6 +257,8 @@ function deletePlan(){
     let confirmation = window.confirm('Do you really want to delete this plan?')
     if (confirmation){
         console.log('Plan will be deleted')
+        let plan = readData()
+        socket.emit('deletePlan', plan)
         // Plan nach PK = planID löschen, sowohl aus irrigationPlans als auch planXChannel
     } else {
         console.log("Plan won't be deleted")
