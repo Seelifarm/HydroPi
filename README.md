@@ -29,7 +29,7 @@ created by @Seelifarm @B4ttlestriker @kv021 @Kohai-san
 * Server will start running after its installation.
 * Visit `localhost` on your browser (Chrome recommended).
 
-## Controlls
+## Controls
 * `sudo python3 PathToFolder/HydroPi/server/scripts/boot.py` - Start the server as intended.
 * `Controll+C` - Stop the NodeJS server.
 
