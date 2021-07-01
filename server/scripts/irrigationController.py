@@ -84,7 +84,7 @@ try:
         print("★ Channel 3 closed")
      
      
-     connection.close()
+    connection.close()
      
 except:
     print("★ except")
