@@ -15,7 +15,7 @@ socket.on("fetchIrrigationPlans", function(data) {
     let irrigationPlans = document.getElementById('irrigationPlanWrapper')
     removeAllChildNodesInverted(irrigationPlans)
     planArr = JSON.parse(data)
-    planArr.forEach(element => {
+    planArr.forEach(async element => {
         let div = document.createElement('div')
         div.className = 'tiles irrigationTile'
         div.textContent = element.planName
@@ -39,6 +39,14 @@ function getActiveValves(planObj) {
 
 socket.on('fetchSpecificPXC', data => {
     activeValveArr = JSON.parse(data)
+    let clear = document.getElementById('planner').children[2].getElementsByTagName('input')
+    for (let index = 0; index < clear.length; index++) {
+        clear[index].checked = false
+    }
+
+    activeValveArr.forEach(element => {
+        document.getElementById(`${element.channelID}`).checked = true
+    })
 })
 
 socket.on('fetchChannels', data => {

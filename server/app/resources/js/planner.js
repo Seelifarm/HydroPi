@@ -17,7 +17,7 @@ class Planner extends HTMLElement {
         satDuration: 100,
         sunday: null,
         sunDuration: 100,
-        channels: prepareValves()
+        channels: []
     }
 
     //Boolean to see if plan already existed or will be created
@@ -33,6 +33,7 @@ class Planner extends HTMLElement {
         if (planObj) {
             this.planObj = planObj
             this.change = true
+            this.planObj.channels = prepareValves()
         }
 
         this.id = 'planner'
@@ -214,7 +215,7 @@ function getLastPlanID() {
 }
 
 function prepareValves() {
-    if(activeValveArr){
+    if(activeValveArr,length != 0 ){
         console.log(activeValveArr)
         return activeValveArr
     } else {
@@ -231,7 +232,6 @@ function updateCheckBoxes(element){
         if (planObj.monday != null){
             weekArr[0].children[0].checked = true
             time = planObj.monday.split(' ')
-            console.log(time)
             weekArr[0].children[3].value = `${convertTimeReversed(time[2])}:${convertTimeReversed(time[1])}`
             weekArr[0].children[3].disabled = false
             weekArr[0].children[5].value = planObj.monDuration
@@ -241,7 +241,6 @@ function updateCheckBoxes(element){
         if (planObj.tuesday != null){
             weekArr[1].children[0].checked = true
             time = planObj.tuesday.split(' ')
-            console.log(time)
             weekArr[1].children[3].value = `${convertTimeReversed(time[2])}:${convertTimeReversed(time[1])}`
             weekArr[1].children[3].disabled = false
             weekArr[1].children[5].value = planObj.tueDuration
@@ -251,7 +250,6 @@ function updateCheckBoxes(element){
         if (planObj.wednesday != null){
             weekArr[2].children[0].checked = true
             time = planObj.wednesday.split(' ')
-            console.log(time)
             weekArr[2].children[3].value = `${convertTimeReversed(time[2])}:${convertTimeReversed(time[1])}`
             weekArr[2].children[3].disabled = false
             weekArr[2].children[5].value = planObj.wedDuration
@@ -261,7 +259,6 @@ function updateCheckBoxes(element){
         if (planObj.thursday != null){
             weekArr[3].children[0].checked = true
             time = planObj.thursday.split(' ')
-            console.log(time)
             weekArr[3].children[3].value = `${convertTimeReversed(time[2])}:${convertTimeReversed(time[1])}`
             weekArr[3].children[3].disabled = false
             weekArr[3].children[5].value = planObj.thuDuration
@@ -271,7 +268,6 @@ function updateCheckBoxes(element){
         if (planObj.friday != null){
             weekArr[4].children[0].checked = true
             time = planObj.friday.split(' ')
-            console.log(time)
             weekArr[4].children[3].value = `${convertTimeReversed(time[2])}:${convertTimeReversed(time[1])}`
             weekArr[4].children[3].disabled = false
             weekArr[4].children[5].value = planObj.friDuration
@@ -281,7 +277,6 @@ function updateCheckBoxes(element){
         if (planObj.saturday != null){
             weekArr[5].children[0].checked = true
             time = planObj.saturday.split(' ')
-            console.log(time)
             console.log(convertTimeReversed(time[1]))
             weekArr[5].children[3].value = `${convertTimeReversed(time[2])}:${convertTimeReversed(time[1])}`
             weekArr[5].children[3].disabled = false
@@ -292,7 +287,6 @@ function updateCheckBoxes(element){
         if (planObj.sunday != null){
             weekArr[6].children[0].checked = true
             time = planObj.sunday.split(' ')
-            console.log(time)
             weekArr[6].children[3].value = `${convertTimeReversed(time[2])}:${convertTimeReversed(time[1])}:00`
             weekArr[6].children[3].disabled = false
             weekArr[6].children[5].value = planObj.sunDuration
@@ -340,23 +334,22 @@ function createPlan() {
 
 
 function changePlan(){
-    console.log('Plan will be updated')
     const updatedPlan = readData()
     updatedPlan.channels = createPlanXChannel()
     socket.emit('updatePlan', updatedPlan)
-    console.log(updatedPlan)
+    window.location.reload()
 }
 
 function deletePlan(){
     let confirmation = window.confirm('Do you really want to delete this plan?')
     if (confirmation){
         console.log('Plan will be deleted')
-        let plan = readData()
+        let plan = document.getElementById('planner').planObj
         socket.emit('deletePlan', plan)
-        // Plan nach PK = planID löschen, sowohl aus irrigationPlans als auch planXChannel
     } else {
         console.log("Plan won't be deleted")
     }
+    window.location.reload()
     
 }
 

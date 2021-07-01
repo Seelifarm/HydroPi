@@ -116,7 +116,7 @@ io.sockets.on("connection", function(Socket){
   Socket.on("deletePlan", async function(data){
     await db.deleteEntity('irrigationPlans', 'planID', data.planID)
     await db.deleteEntity('planXChannel', 'planID', data.planID)
-    scheduleCronForPlan(data, "delete")
+    scheduleCronForPlan(data, "" , "delete")
   });
 
   //DB update interface for channels
@@ -176,8 +176,6 @@ async function scheduleCronForPlan(data, valvesString ,action){
 
   // only needed for create/update
 
-  console.log('valvesString: ' + valvesString)
-  
   let weekdays = [data.monday, data.tuesday, data.wednesday, data.thursday, data.friday, data.saturday, data.sunday]
 
   weekdays.forEach(function(day, index) {
