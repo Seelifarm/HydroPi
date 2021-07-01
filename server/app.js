@@ -280,7 +280,7 @@ function createCronJob(valvesString, duration) {
     pythonPath: 'python3',
     pythonOptions: ['-u'], // get print results in real-time
     scriptPath: '../scripts',
-    args: ['--c='+"'"+ valvesString +"'", '--d='+duration]
+    args: ['--c='+valvesString, '--d='+duration]
   };
 
   PythonShell.run('irrigationController.py', options, function (err, results) {
