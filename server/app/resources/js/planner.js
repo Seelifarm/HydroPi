@@ -332,10 +332,10 @@ function plan(planObj) {
 }
 
 function createPlan() {
-    console.log('Plan will be saved')
     let plan = readData()
     plan.channels = createPlanXChannel()
     socket.emit('createPlan', plan)
+    window.location.reload()
 }
 
 

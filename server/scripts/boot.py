@@ -124,12 +124,13 @@ else:
     print("★")
     print("★ You successfully connected " + inputs + " gadgets.")
     print("★")
-
+    countName = 1  
     for x in range(int(inputs)):
         # Datensatz erzeugen
-        sql6 = "INSERT INTO channels(name, active) VALUES('new', 0)"
+        sql6 = "INSERT INTO channels(name, active) VALUES(" + str(countName) + ", 0)"
         cursor.execute(sql6)
         connection.commit()
+        countName += 1
     print("★ Prepared the database.")
     print("★ ")
     print("★ Starting NodeJS server ...")
