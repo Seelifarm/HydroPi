@@ -26,6 +26,7 @@ var socket = require('socket.io')
 const { weekdays } = require('moment')
 const { duration } = require('tarn/dist/utils')
 const { SSL_OP_EPHEMERAL_RSA } = require('constants')
+const { log } = require('console')
 
 var server = http.createServer(app)
 
@@ -172,10 +173,9 @@ io.sockets.on("connection", function(Socket){
 
 
 // Manager for creating/updating/deleting cronjobs for irrigation plans
-async function scheduleCronForPlan(data, valvesString ,action){
+async function scheduleCronForPlan(data, valvesString, action){
 
   // only needed for create/update
-
   let weekdays = [data.monday, data.tuesday, data.wednesday, data.thursday, data.friday, data.saturday, data.sunday]
 
   weekdays.forEach(function(day, index) {
@@ -278,7 +278,7 @@ function createCronJob(valvesString, duration) {
     pythonPath: 'python3',
     pythonOptions: ['-u'], // get print results in real-time
     scriptPath: '../scripts',
-    args: ['--c='+"'"+ valvesString +"'", '--d='+duration]
+    args: ['--c='+valvesString, '--d='+duration]
   };
 
   PythonShell.run('irrigationController.py', options, function (err, results) {
@@ -288,6 +288,33 @@ function createCronJob(valvesString, duration) {
   });
 
 }
+
+restroneCronJobs()
+// Restore CronJobs from DB on (re)boot
+async function restroneCronJobs() {
+
+  // get all irrigationPlans from db
+  let plans = await db.getAllEntities("irrigationPlans")
+  //console.log(plans)
+
+  // get all planXChannel (valves)
+  var pcMap = new Map()
+  let pXC = await db.getAllEntities("planXChannel")
+  pXC.forEach( x => {
+    if (!pcMap.has(x.planID)) {
+      pcMap.set(x.planID, [])
+    } 
+    pcMap.get(x.planID).push(x.channelID)    
+  })
+
+  //console.log(pcMap)
+
+  // create CronJob for each plan
+  plans.forEach(plan => {
+    let valvesString = pcMap.get(plan.planID).join('+')
+    scheduleCronForPlan(plan, valvesString ,"create")
+  })
+}   
 
   
 // Database
