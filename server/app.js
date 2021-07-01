@@ -172,6 +172,8 @@ io.sockets.on("connection", function(Socket){
 
 
 
+//quickfix
+let counterx = 1
 // Manager for creating/updating/deleting cronjobs for irrigation plans
 async function scheduleCronForPlan(data, valvesString, action){
 
@@ -223,8 +225,12 @@ async function scheduleCronForPlan(data, valvesString, action){
 
       switch (action) {
         case "create":
+          counterx = 1
           manager.add(cronID, day, function() {
+            if(counterx == 1) {
             createCronJob(valvesString, duration)
+            counterx++
+            }
           })
           manager.start(cronID);
           break;
@@ -271,7 +277,6 @@ function getValvesForPlan(data){
 
 // Cronjob
 function createCronJob(valvesString, duration) {
-  console.log(`${manager.listCrons}`)
 
   let options = {
     mode: 'text',
