@@ -11,20 +11,21 @@ import sqlite3
 # delay between measurements in session
 delay = 0.2
 # delay between measurements posted into database
-# sessionDelay = 60 #default: 600 (10 minutes)
+sessionDelay = 60 #default: 600 (10 minutes)
 
 # values under minThreshold are not representative and therefore filtered
 minThreshold = 273 #100% humidity
 maxThreshold = 1023 #0% humidity
 
 # spidev
-spi = spidev.SpiDev()
-spi.open(0,0)
-spi.max_speed_hz=1000000
+#spi = spidev.SpiDev()
+#spi.open(0,0)
+#spi.max_speed_hz=1000000
  
 def readChannel(channel):
-  val = spi.xfer2([1,(8+channel)<<4,0])
-  data = ((val[1]&3) << 8) + val[2]
+  #val = spi.xfer2([1,(8+channel)<<4,0])
+  data = random.randint(minThreshold, maxThreshold)
+  #data = ((val[1]&3) << 8) + val[2]
   return data
 
 def convertToPercentage(value):

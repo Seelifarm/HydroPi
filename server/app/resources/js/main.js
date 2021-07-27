@@ -70,6 +70,30 @@ socket.on('fetchChannels', data => {
     })
 })
 
+socket.on('fetchHumidity', data => {
+    let humidity = document.getElementById('humidity-counter')
+    humidity.textContent = data
+})
+
+getHumidity()
+function getHumidity(){
+    socket.emit('getHumidity')
+}
+
+socket.on('fetchIrrigation', data => {
+
+    const channel = parseInt(data[0])
+    
+    if(data.includes('opened')){
+        // do something when opened with with channel
+        console.log(channel + 'opened')
+    } else if(data.includes('closed')){
+        // do something when closed with with channel
+        console.log(channel + 'closed')
+    }
+
+})
+
 function updateChannels() {
     getDBTable('channels')
     setInterval(() => {
@@ -79,7 +103,7 @@ function updateChannels() {
     }, 1000)
 }
 
-updateChannels()
+updateChannels() 
 
 function removeAllChildNodes(parent) {
     while (parent.firstChild) {

@@ -23,8 +23,8 @@ from os.path import abspath
 
 pathname = abspath('../app.js')
 pathname2 = abspath('../')
-pathname3 = abspath('sensor.py')
-pathname4 = abspath('startSensor.sh')
+#pathname3 = abspath('sensor.py')
+#pathname4 = abspath('startSensor.sh')
 
 # Does db exist?
 if os.path.exists("database.db"):
@@ -39,7 +39,7 @@ if os.path.exists("database.db"):
     print("★")
     print("★ Starting server ...")
     time.sleep(2)
-    subprocess.run(['sudo bash ' + pathname4], shell=True)
+    #subprocess.run(['sudo bash ' + pathname4], shell=True)
     subprocess.run(['sudo node ' + pathname], shell=True)
 else:
     # Connect to new db
@@ -134,7 +134,7 @@ else:
     print("★ Prepared the database.")
     print("★ ")
     print("★ Starting NodeJS server ...")
-    subprocess.run(['sudo bash ' + pathname4], shell=True)
+    #subprocess.run(['sudo bash ' + pathname4], shell=True)
     subprocess.run(['sudo node ' + pathname], shell=True)
 
 

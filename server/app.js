@@ -168,6 +168,11 @@ io.sockets.on("connection", function(Socket){
 
   Socket.on('getSpecificPXCByPID', async function(data) { 
     Socket.emit('fetchSpecificPXC', JSON.stringify(await db.getEntity('planXChannel', 'planID', data.planID))) })
+
+  Socket.on('getHumidity', async function() {
+    const humidity = await db.getLastEntity('sensorLog', 'logTime')
+    Socket.emit("fetchHumidity", humidity[0].value.toString() + "%")
+  })
 });
 
 
@@ -228,7 +233,7 @@ async function scheduleCronForPlan(data, valvesString, action){
           counterx = 1
           manager.add(cronID, day, function() {
             if(counterx == 1) {
-            createCronJob(valvesString, duration)
+            runIrrigation(valvesString, duration)
             counterx++
             }
           })
@@ -236,7 +241,7 @@ async function scheduleCronForPlan(data, valvesString, action){
           break;
         case "update":
           manager.update(cronID, day, function() {
-            createCronJob(valvesString, duration)
+            runIrrigation(valvesString, duration)
           })
           break;
         case "delete":
@@ -273,10 +278,42 @@ function getValvesForPlan(data){
   return valvesString
 } */
 
+// Humidity
+humiditySensor();
+function humiditySensor() {
+
+  // CronJob every minute
+  manager.add('humidity','0 * * * * *', function() {
+
+    let pyshell = new PythonShell('sensorTest.py');  // sensor.py (Testing: sensorTest.py) 
+
+    // sends a message to the Python script via stdin
+    // pyshell.send('hello');
+
+    pyshell.on('message', function (message) {
+      // received a message sent from the Python script (a simple "print" statement)
+      if(message.includes('%')){
+        let humidityValue = message.substring(12)
+        io.emit("fetchHumidity" , humidityValue);
+      }
+      console.log(message);
+    });
+    
+    // end the input stream and allow the process to exit
+    pyshell.end(function (err,code,signal) {
+      if (err) throw err;
+      console.log('★ The exit code was: ' + code);
+      console.log('★ The exit signal was: ' + signal);
+      console.log('★ finished humidity measurement')
+    });
+  });
+
+  manager.start('humidity')
+}
 
 
-// Cronjob
-function createCronJob(valvesString, duration) {
+// open valves/relays to irrigate plants
+function runIrrigation(valvesString, duration) {
 
   let options = {
     mode: 'text',
@@ -286,17 +323,47 @@ function createCronJob(valvesString, duration) {
     args: ['--c='+valvesString, '--d='+duration]
   };
 
-  PythonShell.run('irrigationController.py', options, function (err, results) {
+  let pyshell = new PythonShell('irrigationControllerTest.py', options);  // irrigationController.py (Testing: irrigationControllerTest.py)
+
+  pyshell.on('message', function (message) {
+    // received a message sent from the Python script (a simple "print" statement)
+    if(message.includes('Channel')){
+      io.emit('fetchIrrigation', message.slice(10))
+    }
+    console.log(message);
+  });
+  
+  // end the input stream and allow the process to exit
+  pyshell.end(function (err,code,signal) {
+    if (err) throw err;
+    console.log('★ The exit code was: ' + code);
+    console.log('★ The exit signal was: ' + signal);
+    console.log('★ finished humidity measurement')
+  });
+}
+
+// Old 
+/* function createCronJob(valvesString, duration) {
+
+  let options = {
+    mode: 'text',
+    pythonPath: 'python3',
+    pythonOptions: ['-u'], // get print results in real-time
+    scriptPath: '../scripts',
+    args: ['--c='+valvesString, '--d='+duration]
+  };
+
+  PythonShell.run('irrigationControllerTest.py', options, function (err, results) { // irrigationController.py (Testing: irrigationControllerTest.py)
     if (err) throw err;
     // results is an array consisting of messages collected during execution
     console.log('results: %j', results);
   });
 
-}
+} */
 
-restroneCronJobs()
+restoreCronJobs()
 // Restore CronJobs from DB on (re)boot
-async function restroneCronJobs() {
+async function restoreCronJobs() {
 
   // get all irrigationPlans from db
   let plans = await db.getAllEntities("irrigationPlans")

@@ -1,4 +1,5 @@
-const socket = io.connect("http://localhost:80")
+//const socket = io.connect("http://localhost:80")
+const socket = io.connect("http://192.168.0.147:80")
 //Edit IP suitable
 
 function createIrrigationPlan(data) {
