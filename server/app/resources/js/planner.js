@@ -44,14 +44,22 @@ class Planner extends HTMLElement {
         updateCheckBoxes(this)
     }
 
+
     createHeadline(){
+        const button = document.createElement('button')
+        button.id = 'closeButton'
+        button.textContent = 'X'
+        button.onclick = () => {
+            resetPage()
+        }
+        this.appendChild(button)
+
         let headline = document.createElement('h1')
         if (this.change) {
             headline.textContent = 'Change your irrigation plan'
         } else {
             headline.textContent = 'Create an irrigation plan'
         }
-
         this.appendChild(headline)
     }
 
@@ -327,17 +335,32 @@ function plan(planObj) {
 
 function createPlan() {
     let plan = readData()
-    plan.channels = createPlanXChannel()
-    socket.emit('createPlan', plan)
-    window.location.reload()
+    let channels = createPlanXChannel()
+
+    if(channels.length > 2){
+        window.alert('A selection of three or more valves isn\'t possible due to safety issues')
+    } else if (channels.length < 1){
+        window.alert('Please select one or two valves for your irrigation plan')
+    } else {
+        plan.channels = channels
+        socket.emit('createPlan', plan)
+        resetPage()
+    }
 }
 
 
 function changePlan(){
     const updatedPlan = readData()
-    updatedPlan.channels = createPlanXChannel()
-    socket.emit('updatePlan', updatedPlan)
-    window.location.reload()
+    let channels = createPlanXChannel()
+    if(channels.length > 2){
+        window.alert('A selection of three or more valves isn\'t possible due to safety issues')
+    } else if (channels.length < 1){
+        window.alert('Please select one or two valves for your irrigation plan')
+    } else {
+        updatedPlan.channels = channels
+        socket.emit('updatePlan', updatedPlan)
+        resetPage()
+    }
 }
 
 function deletePlan(){
@@ -349,8 +372,20 @@ function deletePlan(){
     } else {
         console.log("Plan won't be deleted")
     }
-    window.location.reload()
-    
+    resetPage()
+}
+
+function resetPage(){
+    let planner = document.getElementById('planner')
+    if(planner){
+        planner.remove()
+    }
+
+    let container = document.getElementById('grid-container')
+    getDBTable('irrigationPlans')
+    buildHumidity(humidityStr)
+    buildValves(valveArr)
+    container.style.gridTemplateAreas = '"clock clock" "irrigation humidity" "irrigation valves"'
 }
 
 function readData() {
@@ -360,7 +395,7 @@ function readData() {
 
     if(arr[0].children[0].checked) {
         time = convertTime(arr[0].children[3].value.split(':'))
-        planObj.monday = `* ${time[1]} ${time[0]} * * 1`
+        planObj.monday = `0 ${time[1]} ${time[0]} * * 1`
         planObj.monDuration = arr[0].children[5].valueAsNumber
     } else {
         planObj.monday = null
@@ -369,7 +404,7 @@ function readData() {
 
     if(arr[1].children[0].checked) {
         time = convertTime(arr[1].children[3].value.split(':'))
-        planObj.tuesday = `* ${time[1]} ${time[0]} * * 2`
+        planObj.tuesday = `0 ${time[1]} ${time[0]} * * 2`
         planObj.tueDuration = arr[1].children[5].valueAsNumber
     } else {
         planObj.tuesday = null
@@ -378,7 +413,7 @@ function readData() {
 
     if(arr[2].children[0].checked) {
         time = convertTime(arr[2].children[3].value.split(':'))
-        planObj.wednesday = `* ${time[1]} ${time[0]} * * 3`
+        planObj.wednesday = `0 ${time[1]} ${time[0]} * * 3`
         planObj.wedDuration = arr[2].children[5].valueAsNumber
     } else {
         planObj.wednesday = null
@@ -387,7 +422,7 @@ function readData() {
 
     if(arr[3].children[0].checked) {
         time = convertTime(arr[3].children[3].value.split(':'))
-        planObj.thursday = `* ${time[1]} ${time[0]} * * 4`
+        planObj.thursday = `0 ${time[1]} ${time[0]} * * 4`
         planObj.thuDuration = arr[3].children[5].valueAsNumber
     } else {
         planObj.thursday = null
@@ -396,7 +431,7 @@ function readData() {
 
     if(arr[4].children[0].checked) {
         time = convertTime(arr[4].children[3].value.split(':'))
-        planObj.friday = `* ${time[1]} ${time[0]} * * 5`
+        planObj.friday = `0 ${time[1]} ${time[0]} * * 5`
         planObj.friDuration = arr[4].children[5].valueAsNumber
     } else {
         planObj.friday = null
@@ -405,7 +440,7 @@ function readData() {
 
     if(arr[5].children[0].checked) {
         time = convertTime(arr[5].children[3].value.split(':'))
-        planObj.saturday = `* ${time[1]} ${time[0]} * * 6`
+        planObj.saturday = `0 ${time[1]} ${time[0]} * * 6`
         planObj.satDuration = arr[5].children[5].valueAsNumber
     } else {
         planObj.saturday = null
@@ -414,7 +449,7 @@ function readData() {
 
     if(arr[6].children[0].checked) {
         time = convertTime(arr[6].children[3].value.split(':'))
-        planObj.sunday = `* ${time[1]} ${time[0]} * * 0`
+        planObj.sunday = `0 ${time[1]} ${time[0]} * * 0`
         planObj.sunDuration = arr[6].children[5].valueAsNumber
     } else {
         planObj.sunday = null
@@ -441,7 +476,7 @@ function convertTimeReversed(str){
 }
 
 function createPlanXChannel() {
-    let div = document.getElementById('planner').children[2]
+    let div = document.getElementById('planner').children[3]
     let planID = document.getElementById('planner').planObj.planID
     let arr = []
      for (let i = 0; i < valveArr.length ; i++) {

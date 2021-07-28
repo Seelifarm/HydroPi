@@ -8,8 +8,13 @@ let activeValveArr
 
 // So i can deselect it once you click on something else
 let selectedTile
+
+let humidityStr
   
+//Initialization
 getDBTable('irrigationPlans')
+getDBTable('channels')
+getHumidity()
 
 socket.on("fetchIrrigationPlans", function(data) {
     let irrigationPlans = document.getElementById('irrigationPlanWrapper')
@@ -33,10 +38,6 @@ socket.on("fetchIrrigationPlans", function(data) {
     });
 });
 
-function getActiveValves(planObj) {
-    socket.emit('getSpecificPXCByPID', planObj)
-}
-
 socket.on('fetchSpecificPXC', data => {
     activeValveArr = JSON.parse(data)
     let clear = document.getElementById('planner').children[2].getElementsByTagName('input')
@@ -50,73 +51,103 @@ socket.on('fetchSpecificPXC', data => {
 })
 
 socket.on('fetchChannels', data => {
-    let valves = document.getElementById('valveWrapper')
-
-    removeAllChildNodes(valves)
-
     valveArr = JSON.parse(data)
-    valveArr.forEach(element => {
-        let div = document.createElement('div')
-        div.className = 'tiles valveTile'
-        div.textContent = element.name
-        if(element.active == 1){
-            div.style.backgroundImage = "url('resources/img/valve_active.svg')"
-            div.style.borderColor = 'rgb(0, 153, 254)'
-        } else {
-            div.style.backgroundImage = "url('resources/img/valve.svg')"
-            div.style.borderColor = 'white'
-        }
-        valves.appendChild(div)
-    })
+    buildValves(valveArr)
 })
 
 socket.on('fetchHumidity', data => {
+    humidityStr = data
     let humidity = document.getElementById('humidity-counter')
-    humidity.textContent = data
+    if(humidity){
+        humidity.textContent = data
+    }
 })
-
-getHumidity()
-function getHumidity(){
-    socket.emit('getHumidity')
-}
 
 socket.on('fetchIrrigation', data => {
-
-    const channel = parseInt(data[0])
+    const index = parseInt(data[0]) - 1
     
-    if(data.includes('opened')){
-        // do something when opened with with channel
-        console.log(channel + 'opened')
-    } else if(data.includes('closed')){
-        // do something when closed with with channel
-        console.log(channel + 'closed')
-    }
+    const valveWrapper = document.getElementById('valveWrapper')
+    
+    let valve 
 
+    if(data.includes('opened')){
+        if (valveWrapper){
+            valve = valveWrapper.children[index]
+            valve.style.backgroundImage = "url('resources/img/valve_active.svg')"
+            valve.style.borderColor = 'rgb(0, 153, 254)'
+        }
+
+        valveArr[index].active = 1
+        
+    } else if(data.includes('closed')){
+        if (valveWrapper){
+            valve = valveWrapper.children[index]
+            valve.style.backgroundImage = "url('resources/img/valve.svg')"
+            valve.style.borderColor = 'white'
+        }
+        
+        valveArr[index].active = 0
+    }
 })
 
-function updateChannels() {
-    getDBTable('channels')
-    setInterval(() => {
-        if(document.getElementById('valveWrapper')){
-            getDBTable('channels')
-        }
-    }, 1000)
+function buildHumidity(str){
+    const container = document.getElementById('grid-container')
+
+    const humidity = document.createElement('div')
+    humidity.id = 'humidity'
+
+    const headline = document.createElement('h1')
+    headline.textContent = 'Humidity'
+    humidity.appendChild(headline)
+
+    const humidityWrapper = document.createElement('div')
+    humidityWrapper.id = 'humidityWrapper'
+
+    const drop = document.createElement('img')
+    drop.src = 'resources/img/drop.svg'
+    drop.alt = 'DripDrop'
+    drop.style.width = '70px'
+    drop.style.padding = '1cm'
+    humidityWrapper.appendChild(drop)
+
+    const counter = document.createElement('span')
+    counter.id = 'humidity-counter'
+    counter.textContent = str
+    humidityWrapper.appendChild(counter)
+
+    humidity.appendChild(humidityWrapper)
+    container.appendChild(humidity)
 }
 
-updateChannels() 
+function buildValves(arr){
+    const container = document.getElementById('grid-container')
 
-function removeAllChildNodes(parent) {
-    while (parent.firstChild) {
-        parent.removeChild(parent.firstChild);
-    }
-}
+    const valves = document.createElement('div')
+    valves.id = 'valves'
 
-function removeAllChildNodesInverted(parent) {
-    while(parent.lastChild) {
-        if(parent.lastChild.id != 'addTile'){
-        parent.removeChild(parent.lastChild)
-        } else {
-            break
-        }
+    const headline = document.createElement('h1')
+    headline.textContent = 'Valves'
+    valves.appendChild(headline)
+
+    const valveWrapper = document.createElement('div')
+    valveWrapper.id = 'valveWrapper'
+
+    if(arr){
+        arr.forEach( element => {
+            let div = document.createElement('div')
+            div.className = 'tiles valveTile'
+            div.textContent = element.name
+            if(element.active == 1){
+                div.style.backgroundImage = "url('resources/img/valve_active.svg')"
+                div.style.borderColor = 'rgb(0, 153, 254)'
+            }else {
+                div.style.backgroundImage = "url('resources/img/valve.svg')"
+                div.style.borderColor = 'white'
+            }
+            valveWrapper.appendChild(div)
+        })
     }
+    
+    valves.appendChild(valveWrapper)
+    container.appendChild(valves)
 }

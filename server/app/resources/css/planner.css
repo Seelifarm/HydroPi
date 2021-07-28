@@ -8,6 +8,20 @@
     min-width: 500px;
 }
 
+#closeButton {
+    border: none;
+    background-color: black;
+    color: white;
+    font-size: larger;
+    font-weight: bold;
+    margin-left: 5px;
+    margin-top: 5px;
+}
+
+#planner h1 {
+    margin-top: 0;
+}
+
 h2 {
     font-size: 16px;
     color: white;
