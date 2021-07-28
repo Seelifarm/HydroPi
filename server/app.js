@@ -14,11 +14,9 @@ const port = 80
 
 const app = express()
 
-const nodeCron = require('node-cron')
-
 const db = require("./db/entities")
 
-var CronJobManager = require('cron-job-manager')
+const cron = require ("./cron")
 
 let {PythonShell} = require('python-shell')
 
@@ -32,13 +30,15 @@ var server = http.createServer(app)
 
 var io = socket(server);
 
-var manager = new CronJobManager()
-
 var htmlPath = path.join(__dirname, 'app')
 
 app.use(express.static(htmlPath))
 
 
+
+
+
+// SOCKETS
 
 var counter = 0
 
@@ -75,7 +75,6 @@ io.sockets.on("connection", function(Socket){
   });
 
 
-
   //DB interfaces for table irrigationPlans
   Socket.on("createPlan", async function(data){
     let pXC = data.channels
@@ -92,7 +91,7 @@ io.sockets.on("connection", function(Socket){
     })
 
     let valvesString = arr.join('+')
-    scheduleCronForPlan(data, valvesString ,"create")
+    cron.createJobsFromIrrigationPlan(data, valvesString, runIrrigation);
   });
 
   Socket.on("updatePlan", async function(data){
@@ -108,16 +107,18 @@ io.sockets.on("connection", function(Socket){
       await db.insertEntity('planXChannel', element)
     })
 
+    delete data.channels;
+
     let valvesString = arr.join('+')
 
     await db.updateEntity('irrigationPlans', 'planID', data.planID, data)
-    scheduleCronForPlan(data, "update", valvesString)
+    cron.updateJobsFromIrrigationPlan(data, valvesString, runIrrigation)
   });
 
   Socket.on("deletePlan", async function(data){
     await db.deleteEntity('irrigationPlans', 'planID', data.planID)
     await db.deleteEntity('planXChannel', 'planID', data.planID)
-    scheduleCronForPlan(data, "" , "delete")
+    cron.deleteJobsFromIrrigationPlan(data)
   });
 
   //DB update interface for channels
@@ -177,164 +178,28 @@ io.sockets.on("connection", function(Socket){
 
 
 
-//quickfix
-let counterx = 1
-// Manager for creating/updating/deleting cronjobs for irrigation plans
-async function scheduleCronForPlan(data, valvesString, action){
-
-  // only needed for create/update
-  let weekdays = [data.monday, data.tuesday, data.wednesday, data.thursday, data.friday, data.saturday, data.sunday]
-
-  weekdays.forEach(function(day, index) {
-
-    let cronID = data.planID
-    // only needed for create/update
-    var duration 
-
-    switch (index) {
-      case 0:
-        cronID += "-Mon"
-        duration = data.monDuration
-        break;
-      case 1:
-        cronID += "-Tue"
-        duration = data.tueDuration
-        break;
-      case 2:
-        cronID += "-Wed"
-        duration = data.wedDuration
-        break;
-      case 3:
-        cronID += "-Thu"
-        duration = data.thuDuration
-        break;
-      case 4:
-        cronID += "-Fri"
-        duration = data.friDuration
-        break;
-      case 5:
-        cronID += "-Sat"
-        duration = data.satDuration
-        break;  
-      case 6:
-        cronID += "-Sun"
-        duration = data.sunDuration
-        break;    
-      default:
-        console.log("Invalid ID")
-        break;
-    }
-
-    //if != null
-    if(day){
-
-      switch (action) {
-        case "create":
-          counterx = 1
-          manager.add(cronID, day, function() {
-            if(counterx == 1) {
-            runIrrigation(valvesString, duration)
-            counterx++
-            }
-          })
-          manager.start(cronID);
-          break;
-        case "update":
-          manager.update(cronID, day, function() {
-            runIrrigation(valvesString, duration)
-          })
-          break;
-        case "delete":
-          manager.deleteJob(cronID);
-          break;
-        default:
-          console.log("Invalid action. Choose from: create, update, delete")
-          break;
-      }
-
-    } else {
-      if(action == "update" && manager.exists(cronID)){
-        manager.deleteJob(cronID)
-      }
-    }
-  })
-}
-
-/* 
-function getValvesForPlan(data){
-  //Get all used valves in this plan as [channelID, channelID, ...]
-  let valves = data
-  if(valves.length != 0){
-    for (let index = 0; index < valves.length; index++) {
-      valves[index] = valves[index].channelID.stringify
-    }
-    console.log('Valves: '+ valves)
-  } else {
-    console.log('planXChannel Data seems to be empty')
-  }
-  
-  var valvesString = valves.join('+')
-  console.log(valvesString)
-  return valvesString
-} */
-
-// Humidity
-humiditySensor();
-function humiditySensor() {
-
-  // CronJob every minute
-  manager.add('humidity','0 * * * * *', function() {
-
-    let pyshell = new PythonShell('sensorTest.py');  // sensor.py (Testing: sensorTest.py) 
-
-    // sends a message to the Python script via stdin
-    // pyshell.send('hello');
-
-    pyshell.on('message', function (message) {
-      // received a message sent from the Python script (a simple "print" statement)
-      if(message.includes('%')){
-        let humidityValue = message.substring(12)
-        io.emit("fetchHumidity" , humidityValue);
-      }
-      console.log(message);
-    });
-    
-    // end the input stream and allow the process to exit
-    pyshell.end(function (err,code,signal) {
-      if (err) throw err;
-      console.log('★ The exit code was: ' + code);
-      console.log('★ The exit signal was: ' + signal);
-      console.log('★ finished humidity measurement')
-    });
-  });
-
-  manager.start('humidity')
-}
 
 
-// open valves/relays to irrigate plants
-function runIrrigation(valvesString, duration) {
+// PYTHON SCRIPT METHODS
 
-  let options = {
-    mode: 'text',
-    pythonPath: 'python3',
-    pythonOptions: ['-u'], // get print results in real-time
-    scriptPath: '../scripts',
-    args: ['--c='+valvesString, '--d='+duration]
-  };
+// run sensor
+function runSensor() {
+  let pyshell = new PythonShell('sensorTest.py');  // sensor.py (Testing: sensorTest.py) 
 
-  let pyshell = new PythonShell('irrigationControllerTest.py', options);  // irrigationController.py (Testing: irrigationControllerTest.py)
+  // sends a message to the Python script via stdin
+  // pyshell.send('hello');
 
   pyshell.on('message', function (message) {
     // received a message sent from the Python script (a simple "print" statement)
-    if(message.includes('Channel')){
-      io.emit('fetchIrrigation', message.slice(10))
+    if (message.includes('%')) {
+      let humidityValue = message.substring(12)
+      io.emit("fetchHumidity", humidityValue);
     }
     console.log(message);
   });
-  
+
   // end the input stream and allow the process to exit
-  pyshell.end(function (err,code,signal) {
+  pyshell.end(function (err, code, signal) {
     if (err) throw err;
     console.log('★ The exit code was: ' + code);
     console.log('★ The exit signal was: ' + signal);
@@ -342,27 +207,41 @@ function runIrrigation(valvesString, duration) {
   });
 }
 
-// Old 
-/* function createCronJob(valvesString, duration) {
+// open valve(s)/relay(s) to irrigate plants
+function runIrrigation(valvesString, duration) {
 
   let options = {
     mode: 'text',
     pythonPath: 'python3',
     pythonOptions: ['-u'], // get print results in real-time
     scriptPath: '../scripts',
-    args: ['--c='+valvesString, '--d='+duration]
+    args: ['--c=' + valvesString, '--d=' + duration]
   };
 
-  PythonShell.run('irrigationControllerTest.py', options, function (err, results) { // irrigationController.py (Testing: irrigationControllerTest.py)
-    if (err) throw err;
-    // results is an array consisting of messages collected during execution
-    console.log('results: %j', results);
+  let pyshell = new PythonShell('irrigationControllerTest.py', options);  // irrigationController.py (Testing: irrigationControllerTest.py)
+
+  pyshell.on('message', function (message) {
+    // received a message sent from the Python script (a simple "print" statement)
+    if (message.includes('Channel')) {
+      io.emit('fetchIrrigation', message.slice(10))
+    }
+    console.log(message);
   });
 
-} */
+  // end the input stream and allow the process to exit
+  pyshell.end(function (err, code, signal) {
+    if (err) throw err;
+    console.log('★ The exit code was: ' + code);
+    console.log('★ The exit signal was: ' + signal);
+    console.log('★ finished irrigation')
+  });
+}
 
-restoreCronJobs()
-// Restore CronJobs from DB on (re)boot
+
+
+
+
+// Method to restore CronJobs from irrigationPlans in DB on (re)boot
 async function restoreCronJobs() {
 
   // get all irrigationPlans from db
@@ -372,11 +251,11 @@ async function restoreCronJobs() {
   // get all planXChannel (valves)
   var pcMap = new Map()
   let pXC = await db.getAllEntities("planXChannel")
-  pXC.forEach( x => {
+  pXC.forEach(x => {
     if (!pcMap.has(x.planID)) {
       pcMap.set(x.planID, [])
-    } 
-    pcMap.get(x.planID).push(x.channelID)    
+    }
+    pcMap.get(x.planID).push(x.channelID)
   })
 
   //console.log(pcMap)
@@ -384,14 +263,29 @@ async function restoreCronJobs() {
   // create CronJob for each plan
   plans.forEach(plan => {
     let valvesString = pcMap.get(plan.planID).join('+')
-    scheduleCronForPlan(plan, valvesString ,"create")
+    cron.createJobsFromIrrigationPlan(plan, valvesString, runIrrigation)
   })
-}   
+}
 
-  
-// Database
 
-app.use(express.urlencoded({extended: false}));
+
+
+
+// INITIALIZATION
+
+// create a CronJob that runs the sensor.py every minute
+cron.createJobForHumiditySensor('0 * * * * *', runSensor)
+
+// restore all CronJobs from saved irrigationPlans
+restoreCronJobs()
+
+
+
+
+
+// START SERVER
+
+app.use(express.urlencoded({ extended: false }));
 
 app.use(express.json());
 
@@ -399,11 +293,11 @@ server.listen(port, error => {
 
   if (error) {
 
-      console.log('★ Something went wrong ', error)
+    console.log('★ Something went wrong ', error)
 
   } else {
 
-      console.log('★ Server is listening on port ' + port)
+    console.log('★ Server is listening on port ' + port)
 
   }
 
