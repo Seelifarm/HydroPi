@@ -69,7 +69,10 @@ function updateJobsFromIrrigationPlan(plan, valvesString, runIrrigation) {
 
       // if CronJob already exists, update
       if (manager.exists(cronID)) {
-        manager.update(cronID, durations[index])
+        manager.update(cronID, day, function (){
+          console.info(`STARTING CronJob: ${cronID} (Time: '${day}', Valves: ${valvesString}, Duration: ${durations[index]})`);
+          runIrrigation(valvesString, durations[index]);
+        });
         console.info(`Updated CronJob: ${cronID} (Time: '${day}', Valves: ${valvesString}, Duration: ${durations[index]})`);
 
 
