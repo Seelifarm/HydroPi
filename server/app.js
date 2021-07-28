@@ -101,7 +101,7 @@ io.sockets.on("connection", function(Socket){
     await db.deleteEntity('planXChannel', 'planID', data.planID)
    
 
-    arr = [] 
+    let arr = [] 
     // insert new pXC
     data.channels.forEach(async element => {
       arr.push(element.channelID)
