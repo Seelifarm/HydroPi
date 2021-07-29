@@ -1,9 +1,6 @@
 const { createLogger, format, transports } = require('winston');
 const { combine, timestamp, label, printf } = format;
 
-/* const myFormat = printf(({ level, message, label, timestamp }) => {
-  return `${timestamp} [${label}] ${level}: ${message}`;
-}); */
 
 const myFormat = printf(({ level, message, moduleName, timestamp, stack }) => {
   return `${timestamp} [${moduleName}] ${level}: ${stack || message}`;
@@ -20,30 +17,22 @@ const logger = createLogger({
   ),
   // defaultMeta: { service: 'user-service' },
   transports: [
+    new transports.Console({
+      level: 'debug',
+  }),
     new transports.File({
-        filename: 'combined.log',
-        level: 'info',
+        filename: __dirname + '/combined.log',
+        level: 'verbose',
         //format: format.simple()
     }),
-    new transports.Console({
-        level: 'debug',
-/*         format: format.combine(
-          format.colorize(),
-          format.simple()
-        ) */
-    }),
-    //
-    // - Write all logs with level `error` and below to `error.log`
-    // - Write all logs with level `info` and below to `combined.log`
-    //
-    new transports.File({ filename: 'error.log', level: 'error' }),
-    new transports.File({ filename: 'combined.log' }),
+    new transports.File({ 
+      filename: __dirname + 'error.log', 
+      level: 'error' }),
   ],
 });
 
 
 //module.exports = logger
-
 module.exports = function(name) {
   // set the default moduleName of the child
   return logger.child({moduleName: name});
