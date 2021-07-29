@@ -2,12 +2,18 @@ body {
     font-family: 'Montserrat', sans-serif;
     background-color:black;
     color: white;
-    overflow:hidden;
+    /*overflow:hidden;*/
     margin: 0;
     background-image: url(../img/HP_Logo.png);
     background-position: 50% 2.5%;
     background-size: 16%;
     background-repeat: no-repeat;
+    -ms-overflow-style: none; /*Internet Explorer & Edge*/
+    scrollbar-width: none; /*Firefox*/
+}
+
+body::-webkit-scrollbar {
+    display: none; /*Chrome, Safari & Opera*/
 }
 
 h1 {
@@ -19,11 +25,6 @@ h1 {
 #grid-container {
     margin: 8px;
     display: grid;
-    grid-template-columns: minmax(0,1fr) 50%;
-    grid-template-areas: 
-    'clock clock'
-    'irrigation humidity'
-    'irrigation valves';
 }
 
 #clock {
@@ -68,13 +69,54 @@ h1 {
     font-size: 24px;
 }
 
-footer{
-    bottom: 0;
-    position: fixed;
-    height: fit-content;
-    width: 100%;
-    color: white;
-    text-align: right;
-    font-weight: bold;
-    font-size: small;
+
+@media screen and (max-width: 1200px) {
+    #grid-container {
+        grid-template-areas: 
+        'clock'
+        'irrigation'
+        'humidity'
+        'valves';
+    }
+
+    #irrigationPlanWrapper {
+        display: block;
+        align-items: center;
+        justify-content: center;
+    }
+
+    footer {
+        bottom: 0;
+        margin-top: 5px;
+        height: fit-content;
+        width: 100%;
+        color: white;
+        text-align: right;
+        font-weight: bold;
+        font-size: small;
+    }
+}
+
+@media screen and (min-width:1200px) {
+    #grid-container {
+        grid-template-columns: minmax(0,1fr) 50%;
+        grid-template-areas: 
+        'clock clock'
+        'irrigation humidity'
+        'irrigation valves';
+    }
+
+    footer{
+        bottom: 0;
+        position: fixed;
+        margin-top: 5px;
+        height: fit-content;
+        width: 100%;
+        color: white;
+        text-align: right;
+        font-weight: bold;
+        font-size: small;
+    }
+    
+    
 }

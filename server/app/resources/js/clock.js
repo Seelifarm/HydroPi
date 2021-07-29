@@ -1,7 +1,7 @@
 "use strict"
 
 class Clock {
-    constructor(element){
+    constructor(element) {
         this.element = element;
     }
 
@@ -15,14 +15,14 @@ class Clock {
 
     update() {
         const parts = this.getTimeParts()
-        const dateFormatted = `${parts.weekday}, ${parts.day.toString().padStart(2,"0")}.${parts.month.toString().padStart(2,"0")}.${parts.year.toString()}`
-        const timeFormatted = `${parts.hour}:${parts.minutes.toString().padStart(2,"0")}`
-        
+        const dateFormatted = `${parts.weekday}, ${parts.day.toString().padStart(2, "0")}.${parts.month.toString().padStart(2, "0")}.${parts.year.toString()}`
+        const timeFormatted = `${parts.hour}:${parts.minutes.toString().padStart(2, "0")}`
+
         document.querySelector(".date").textContent = dateFormatted
         document.querySelector(".time").textContent = timeFormatted
     }
 
-    getTimeParts(){
+    getTimeParts() {
         const now = new Date()
         let weekday = ""
 
@@ -31,22 +31,22 @@ class Clock {
                 weekday = "Sunday"
                 break;
             case 1:
-                weekday = "Monday" 
+                weekday = "Monday"
                 break;
             case 2:
                 weekday = "Tuesday"
                 break;
             case 3:
-                weekday = "Wednesday" 
+                weekday = "Wednesday"
                 break;
             case 4:
-                weekday = "Thursday" 
+                weekday = "Thursday"
                 break;
             case 5:
-                weekday = "Friday" 
+                weekday = "Friday"
                 break;
             case 6:
-                weekday = "Saturday" 
+                weekday = "Saturday"
                 break;
             default:
                 weekday = "It is Wednesday my dudes"

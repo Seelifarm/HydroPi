@@ -1,11 +1,6 @@
 #planner {
     background-color: black;
     grid-area: 'planner';
-    border-top: solid;
-    border-left: solid;
-    border-width: 1px;
-    border-color: white;
-    min-width: 500px;
 }
 
 #closeButton {
@@ -28,18 +23,27 @@ h2 {
     text-align: center;
 }
 
+#week div {
+    width: 12%;
+    height: fit-content;
+    justify-content: center;
+    padding-left: 2px;
+    padding-right: 2px;
+}
+
 input[type="checkbox"] {
     display: none!important;
 }
 
 input[type="checkbox"] + label {
     display: inline-block;
-    width: 80px;
+    width: 90%;
     height: 80px;
+    line-height: 80px;
+    white-space: nowrap;
     font-size: 12px;
     text-align: center;
     cursor: pointer;
-    line-height: 80px;
     color: lightgrey;
     border: solid;
     border-color: rgb(131, 129, 129);
@@ -54,8 +58,8 @@ input[type="checkbox"]:checked + label{
 }
 
 input[type="checkbox"] ~ input {
+    width: 90%;
     color : lightgrey;
-    width : 80px;
     margin-top : 5px;
     margin-bottom : 5px;
 }
@@ -72,6 +76,10 @@ input[type="checkbox"] ~ span {
 
 input[type="checkbox"]:checked ~ span {
     color: white;
+}
+
+input[type="time"]::-webkit-inner-spin-button {
+    display: none;
 }
 
 #submitWrapper {
@@ -100,3 +108,21 @@ input[type="checkbox"]:checked ~ span {
     text-align: center;
 }
 
+
+
+@media screen and (max-width: 1200px) {
+    #planner {
+        border:solid;
+        border-width: 1px;
+        border-color: white;
+    }
+}
+
+@media screen and (min-width:1200px) {
+    #planner {
+        border-top: solid;
+        border-left: solid;
+        border-width: 1px;
+        border-color: white;
+    }
+}

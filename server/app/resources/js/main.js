@@ -1,96 +1,25 @@
-let planArr 
+// GLOBAL VARIABLES
 
-// So i can get all Valves in the Planner with their proper ID's 
-let valveArr 
+let planArr
 
-// So i can get all Valves that are included in the selected Plan
-let activeValveArr
+let valveArr
 
-// So i can deselect it once you click on something else
-let selectedTile
+let humidityStr 
 
-let humidityStr
-  
-//Initialization
+let activeValveArr //used after a plan gets selected
+
+let selectedTile //used to change back the border color after a different tile gets selected
+
+// INITIALIZATION
+
 getDBTable('irrigationPlans')
 getDBTable('channels')
 getHumidity()
 
-socket.on("fetchIrrigationPlans", function(data) {
-    let irrigationPlans = document.getElementById('irrigationPlanWrapper')
-    removeAllChildNodesInverted(irrigationPlans)
-    planArr = JSON.parse(data)
-    planArr.forEach(async element => {
-        let div = document.createElement('div')
-        div.className = 'tiles irrigationTile'
-        div.textContent = element.planName
-        div.onclick = () => {
-            if(selectedTile) {
-                selectedTile.style.borderColor = 'white'
-            }
-            getActiveValves(element)
-            plan(element)
-            div.style.borderColor = 'rgb(0, 153, 254)'
-            selectedTile = div
-        }
+// UI-METHODS
 
-        irrigationPlans.appendChild(div)
-    });
-});
-
-socket.on('fetchSpecificPXC', data => {
-    activeValveArr = JSON.parse(data)
-    let clear = document.getElementById('planner').children[2].getElementsByTagName('input')
-    for (let index = 0; index < clear.length; index++) {
-        clear[index].checked = false
-    }
-
-    activeValveArr.forEach(element => {
-        document.getElementById(`${element.channelID}`).checked = true
-    })
-})
-
-socket.on('fetchChannels', data => {
-    valveArr = JSON.parse(data)
-    buildValves(valveArr)
-})
-
-socket.on('fetchHumidity', data => {
-    humidityStr = data
-    let humidity = document.getElementById('humidity-counter')
-    if(humidity){
-        humidity.textContent = data
-    }
-})
-
-socket.on('fetchIrrigation', data => {
-    const index = parseInt(data[0]) - 1
-    
-    const valveWrapper = document.getElementById('valveWrapper')
-    
-    let valve 
-
-    if(data.includes('opened')){
-        if (valveWrapper){
-            valve = valveWrapper.children[index]
-            valve.style.backgroundImage = "url('resources/img/valve_active.svg')"
-            valve.style.borderColor = 'rgb(0, 153, 254)'
-        }
-
-        valveArr[index].active = 1
-        
-    } else if(data.includes('closed')){
-        if (valveWrapper){
-            valve = valveWrapper.children[index]
-            valve.style.backgroundImage = "url('resources/img/valve.svg')"
-            valve.style.borderColor = 'white'
-        }
-        
-        valveArr[index].active = 0
-    }
-})
-
-function buildHumidity(str){
+//Used to build and rebuild humidity-column | Used for initialization and on page reset or rather after planner gets dismissed
+function buildHumidity(str) {
     const container = document.getElementById('grid-container')
 
     const humidity = document.createElement('div')
@@ -119,7 +48,8 @@ function buildHumidity(str){
     container.appendChild(humidity)
 }
 
-function buildValves(arr){
+//Used to build and rebuild valves-column | Used for initialization and on page reset or rather after planner gets dismissed
+function buildValves(arr) {
     const container = document.getElementById('grid-container')
 
     const valves = document.createElement('div')
@@ -132,22 +62,97 @@ function buildValves(arr){
     const valveWrapper = document.createElement('div')
     valveWrapper.id = 'valveWrapper'
 
-    if(arr){
-        arr.forEach( element => {
+    if (arr) {
+        arr.forEach(element => {
             let div = document.createElement('div')
             div.className = 'tiles valveTile'
             div.textContent = element.name
-            if(element.active == 1){
+            if (element.active == 1) {
                 div.style.backgroundImage = "url('resources/img/valve_active.svg')"
                 div.style.borderColor = 'rgb(0, 153, 254)'
-            }else {
+            } else {
                 div.style.backgroundImage = "url('resources/img/valve.svg')"
                 div.style.borderColor = 'white'
             }
             valveWrapper.appendChild(div)
         })
     }
-    
+
     valves.appendChild(valveWrapper)
     container.appendChild(valves)
+}
+
+// used upon clicking on irrigationTiles: switches UI grid colums, passes planObj to constructor if already existing 
+function plan(planObj) {
+    if (selectedTile) {
+        selectedTile.style.borderColor = 'white'
+    }
+
+    //Remove any underlaying elements
+    let humidity = document.getElementById('humidity')
+    if (humidity) {
+        humidity.remove()
+    }
+
+    let valves = document.getElementById('valves')
+    if (valves) {
+        valves.remove()
+    }
+
+    let planner = document.getElementById('planner')
+    if (planner) {
+        planner.remove()
+    }
+
+    //Adds a new custom HTML-Element as grid item and changes the template areas accordingly
+    planner = new Planner(planObj)
+
+    const container = document.getElementById('grid-container')
+
+    const width = document.documentElement.clientWidth
+    if (width > 1200) {
+        container.style.gridTemplateAreas = '"clock clock" "irrigation planner"'
+    } else {
+        container.style.gridTemplateAreas = '"clock" "planner" "irrigation"'
+    }
+
+    container.appendChild(planner)
+}
+
+// used to switch UI back from planner to humidity and valves
+function resetPage() {
+    let planner = document.getElementById('planner')
+    if (planner) {
+        planner.remove()
+    }
+
+    let container = document.getElementById('grid-container')
+    getDBTable('irrigationPlans')
+    buildHumidity(humidityStr)
+    buildValves(valveArr)
+
+    const width = document.documentElement.clientWidth
+    if (width > 1200) {
+        container.style.gridTemplateAreas = '"clock clock" "irrigation humidity" "irrigation valves"'
+    } else {
+        container.style.gridTemplateAreas = '"clock" "irrigation" "humidity" "valves"'
+    }
+}
+
+// UI-HELPER-FUNCTIONS
+
+function removeAllChildNodes(parent) {
+    while (parent.firstChild) {
+        parent.removeChild(parent.firstChild);
+    }
+}
+
+function removeAllChildNodesInverted(parent) {
+    while (parent.lastChild) {
+        if (parent.lastChild.id != 'addTile') {
+            parent.removeChild(parent.lastChild)
+        } else {
+            break
+        }
+    }
 }

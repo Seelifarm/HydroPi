@@ -1,6 +1,16 @@
+// CUSTOM HTML ELEMENT
+// ******PLANNER******
+
 class Planner extends HTMLElement {
+    change = false // used to always identify if this plan already existed or will be created
+
+    weekArr = []
+
+    WEEKDAYS = [{ name: 'Monday', number: 1 }, { name: 'Tuesday', number: 2 },
+                { name: 'Wednesday', number: 3 }, { name: 'Thursday', number: 4 },
+                { name: 'Friday', number: 5 }, { name: 'Saturday', number: 6 }, { name: 'Sunday', number: 0 }]
+
     planObj = {
-        //Hier von allen Plans die höchste ID finden und + 1
         planID: getLastPlanID(),
         planName: "New Plan",
         monday: null,
@@ -20,20 +30,11 @@ class Planner extends HTMLElement {
         channels: []
     }
 
-    //Boolean to see if plan already existed or will be created
-    change = false
-
-    //Contains all day-divs for easy access
-    weekArr = []
-
-    WEEKDAYS = [{name: 'Monday', number: 1},{name: 'Tuesday', number: 2},{name: 'Wednesday', number: 3},{name: 'Thursday', number: 4},{name: 'Friday', number: 5},{name: 'Saturday', number: 6},{name: 'Sunday', number: 0}]
-
     constructor(planObj) {
         super()
         if (planObj) {
             this.planObj = planObj
             this.change = true
-            this.planObj.channels = prepareValves()
         }
 
         this.id = 'planner'
@@ -44,8 +45,7 @@ class Planner extends HTMLElement {
         updateCheckBoxes(this)
     }
 
-
-    createHeadline(){
+    createHeadline() {
         const button = document.createElement('button')
         button.id = 'closeButton'
         button.textContent = 'X'
@@ -63,7 +63,7 @@ class Planner extends HTMLElement {
         this.appendChild(headline)
     }
 
-    createValves(){
+    createValves() {
         let question = document.createElement('h2')
         question.textContent = 'Which valves should be included?'
         this.appendChild(question)
@@ -73,41 +73,26 @@ class Planner extends HTMLElement {
         valves.style.display = 'flex'
         valves.style.justifyContent = 'center'
 
-        if(this.change){
-            // TODO hier noch die Checkboxen aus activeValves checken
-            valveArr.forEach(element => {
-                let check = document.createElement('input')
-                check.id = element.name
-                check.type = 'checkbox'
-                valves.appendChild(check)
-            
-                let label = document.createElement('label')
-                label.id = element.name + 'Lbl'
-                label.htmlFor = element.name
-                label.textContent = element.name
-                label.style.margin = '2px'
-                valves.appendChild(label)
-            });
-        } else {
-            valveArr.forEach(element => {
-                let check = document.createElement('input')
-                check.id = element.name
-                check.type = 'checkbox'
-                valves.appendChild(check)
-            
-                let label = document.createElement('label')
-                label.id = element.name + 'Lbl'
-                label.htmlFor = element.name
-                label.textContent = element.name
-                label.style.margin = '2px'
-                valves.appendChild(label)
-            });
-        }
-    
+        valveArr.forEach(element => {
+            let check = document.createElement('input')
+            check.id = element.name
+            check.type = 'checkbox'
+            valves.appendChild(check)
+
+            let label = document.createElement('label')
+            label.id = element.name + 'Lbl'
+            label.htmlFor = element.name
+            label.textContent = element.name
+            label.style.margin = '2px'
+            label.style.width = '25%'
+            label.style.maxWidth = '80px'
+            valves.appendChild(label)
+        });
+
         this.appendChild(valves)
     }
 
-    createWeek(){
+    createWeek() {
         let div = document.createElement('div')
         div.style.width = this.width
 
@@ -116,19 +101,17 @@ class Planner extends HTMLElement {
         div.appendChild(question)
 
         let weekdiv = document.createElement('div')
+        weekdiv.id = 'week'
         weekdiv.style.height = 'fit-content'
         weekdiv.style.display = 'flex'
         weekdiv.style.justifyContent = 'center'
 
         this.WEEKDAYS.forEach(element => {
             let day = document.createElement('div')
-            day.style.width = `88px`
-            day.style.height = 'fit-content'
-            day.style.justifyContent = 'center'
 
             let check = document.createElement('input')
             check.id = element.name
-            check.type='checkbox'
+            check.type = 'checkbox'
             check.onchange = this.toggleInputs
             day.appendChild(check)
 
@@ -137,7 +120,7 @@ class Planner extends HTMLElement {
             label.htmlFor = element.name
             label.textContent = element.name
             day.appendChild(label)
-            
+
             let start = document.createElement('span')
             start.textContent = 'Start at:'
             day.appendChild(start)
@@ -147,7 +130,7 @@ class Planner extends HTMLElement {
             time.value = '13:00'
             time.disabled = true
             day.appendChild(time)
-        
+
             let durationLbl = document.createElement('span')
             durationLbl.textContent = 'Duration in s:'
             day.appendChild(durationLbl)
@@ -167,16 +150,15 @@ class Planner extends HTMLElement {
         this.appendChild(div)
     }
 
-    createSubmit(){
+    createSubmit() {
         let div = document.createElement('div')
         div.id = 'submitWrapper'
-
 
         let submitBtn = document.createElement('button')
         submitBtn.id = 'submitBtn'
 
         //Only adds a delete button if there is already a plan existing, otherwise just give the option to save a plan
-        if (this.change){
+        if (this.change) {
             submitBtn.textContent = 'Change Plan'
             submitBtn.onclick = changePlan
             div.appendChild(submitBtn)
@@ -195,16 +177,17 @@ class Planner extends HTMLElement {
         this.appendChild(div)
     }
 
+    // used to enable or disable inputs after checking a day-checkbox
     toggleInputs(element) {
         let time = element.srcElement.parentNode.children[3]
-        if(time && time.disabled === true){
+        if (time && time.disabled === true) {
             time.disabled = false
         } else if (time) {
             time.disabled = true
         }
 
         let duration = element.srcElement.parentNode.children[5]
-        if(duration && duration.disabled === true){
+        if (duration && duration.disabled === true) {
             duration.disabled = false
         } else if (time) {
             duration.disabled = true
@@ -214,30 +197,116 @@ class Planner extends HTMLElement {
 
 window.customElements.define('my-planner', Planner)
 
+// HELPER-FUNCTIONS
+
+// used to set a new planID in planObject
 function getLastPlanID() {
-    if(planArr.length != 0){
+    if (planArr.length != 0) {
         return planArr[planArr.length - 1].planID + 1
     } else {
         return 0
     }
 }
 
-function prepareValves() {
-    if(activeValveArr,length != 0 ){
-        console.log(activeValveArr)
-        return activeValveArr
-    } else {
-        return []
+// used to get time in the correct cronjob format
+function convertTime(arr) {
+    for (let i = 0; i < arr.length; i++) {
+        if (arr[i][0] === '0') {
+            arr[i] = arr[i].slice(1)
+        }
     }
+    return arr
 }
 
-function updateCheckBoxes(element){
-    
+//used to fill inputs from cronjob format
+function convertTimeReversed(str) {
+    if (str.length == 1) {
+        return '0' + str
+    } else return str
+}
+
+// DATA-UI METHODS
+
+//used to fill planObject with User-Inputs
+function readData() {
+    let planObj = document.getElementById('planner').planObj
+    let arr = document.getElementById('planner').weekArr
+    let time
+
+    if (arr[0].children[0].checked) {
+        time = convertTime(arr[0].children[3].value.split(':'))
+        planObj.monday = `0 ${time[1]} ${time[0]} * * 1`
+        planObj.monDuration = arr[0].children[5].valueAsNumber
+    } else {
+        planObj.monday = null
+        planObj.monDuration = 0
+    }
+
+    if (arr[1].children[0].checked) {
+        time = convertTime(arr[1].children[3].value.split(':'))
+        planObj.tuesday = `0 ${time[1]} ${time[0]} * * 2`
+        planObj.tueDuration = arr[1].children[5].valueAsNumber
+    } else {
+        planObj.tuesday = null
+        planObj.tueDuration = 0
+    }
+
+    if (arr[2].children[0].checked) {
+        time = convertTime(arr[2].children[3].value.split(':'))
+        planObj.wednesday = `0 ${time[1]} ${time[0]} * * 3`
+        planObj.wedDuration = arr[2].children[5].valueAsNumber
+    } else {
+        planObj.wednesday = null
+        planObj.wedDuration = 0
+    }
+
+    if (arr[3].children[0].checked) {
+        time = convertTime(arr[3].children[3].value.split(':'))
+        planObj.thursday = `0 ${time[1]} ${time[0]} * * 4`
+        planObj.thuDuration = arr[3].children[5].valueAsNumber
+    } else {
+        planObj.thursday = null
+        planObj.thuDuration = 0
+    }
+
+    if (arr[4].children[0].checked) {
+        time = convertTime(arr[4].children[3].value.split(':'))
+        planObj.friday = `0 ${time[1]} ${time[0]} * * 5`
+        planObj.friDuration = arr[4].children[5].valueAsNumber
+    } else {
+        planObj.friday = null
+        planObj.friDuration = 0
+    }
+
+    if (arr[5].children[0].checked) {
+        time = convertTime(arr[5].children[3].value.split(':'))
+        planObj.saturday = `0 ${time[1]} ${time[0]} * * 6`
+        planObj.satDuration = arr[5].children[5].valueAsNumber
+    } else {
+        planObj.saturday = null
+        planObj.satDuration = 0
+    }
+
+    if (arr[6].children[0].checked) {
+        time = convertTime(arr[6].children[3].value.split(':'))
+        planObj.sunday = `0 ${time[1]} ${time[0]} * * 0`
+        planObj.sunDuration = arr[6].children[5].valueAsNumber
+    } else {
+        planObj.sunday = null
+        planObj.sunDuration = 0
+    }
+
+    return planObj
+}
+
+// used to fill UI with data of an already existing plan
+function updateCheckBoxes(element) {
+
     let planObj = element.planObj
     let weekArr = element.weekArr
     let time
-    if(element.change){
-        if (planObj.monday != null){
+    if (element.change) {
+        if (planObj.monday != null) {
             weekArr[0].children[0].checked = true
             time = planObj.monday.split(' ')
             weekArr[0].children[3].value = `${convertTimeReversed(time[2])}:${convertTimeReversed(time[1])}`
@@ -246,7 +315,7 @@ function updateCheckBoxes(element){
             weekArr[0].children[5].disabled = false
         }
 
-        if (planObj.tuesday != null){
+        if (planObj.tuesday != null) {
             weekArr[1].children[0].checked = true
             time = planObj.tuesday.split(' ')
             weekArr[1].children[3].value = `${convertTimeReversed(time[2])}:${convertTimeReversed(time[1])}`
@@ -255,7 +324,7 @@ function updateCheckBoxes(element){
             weekArr[1].children[5].disabled = false
         }
 
-        if (planObj.wednesday != null){
+        if (planObj.wednesday != null) {
             weekArr[2].children[0].checked = true
             time = planObj.wednesday.split(' ')
             weekArr[2].children[3].value = `${convertTimeReversed(time[2])}:${convertTimeReversed(time[1])}`
@@ -264,7 +333,7 @@ function updateCheckBoxes(element){
             weekArr[2].children[5].disabled = false
         }
 
-        if (planObj.thursday != null){
+        if (planObj.thursday != null) {
             weekArr[3].children[0].checked = true
             time = planObj.thursday.split(' ')
             weekArr[3].children[3].value = `${convertTimeReversed(time[2])}:${convertTimeReversed(time[1])}`
@@ -273,7 +342,7 @@ function updateCheckBoxes(element){
             weekArr[3].children[5].disabled = false
         }
 
-        if (planObj.friday != null){
+        if (planObj.friday != null) {
             weekArr[4].children[0].checked = true
             time = planObj.friday.split(' ')
             weekArr[4].children[3].value = `${convertTimeReversed(time[2])}:${convertTimeReversed(time[1])}`
@@ -282,7 +351,7 @@ function updateCheckBoxes(element){
             weekArr[4].children[5].disabled = false
         }
 
-        if (planObj.saturday != null){
+        if (planObj.saturday != null) {
             weekArr[5].children[0].checked = true
             time = planObj.saturday.split(' ')
             console.log(convertTimeReversed(time[1]))
@@ -292,7 +361,7 @@ function updateCheckBoxes(element){
             weekArr[5].children[5].disabled = false
         }
 
-        if (planObj.sunday != null){
+        if (planObj.sunday != null) {
             weekArr[6].children[0].checked = true
             time = planObj.sunday.split(' ')
             weekArr[6].children[3].value = `${convertTimeReversed(time[2])}:${convertTimeReversed(time[1])}:00`
@@ -300,46 +369,19 @@ function updateCheckBoxes(element){
             weekArr[6].children[5].value = planObj.sunDuration
             weekArr[6].children[5].disabled = false
         }
-
     }
 }
 
-function plan(planObj) {
-    if(selectedTile) {
-        selectedTile.style.borderColor = 'white'
-    }
+// BUTTON-FUNCTIONS | EMITTING TO BACK-END
 
-    //Remove any underlaying elements
-    let humidity = document.getElementById('humidity')
-    if (humidity) {
-        humidity.remove()
-    }
-
-    let valves = document.getElementById('valves')
-    if (valves) {
-        valves.remove()
-    }
-
-    let planner = document.getElementById('planner')
-    if (planner) {
-        planner.remove()
-    }
-    
-    //Adds a new custom HTML-Element as grid item and changes the template areas accordingly
-    planner = new Planner(planObj)
-
-    const container = document.getElementById('grid-container')
-    container.style.gridTemplateAreas = '"clock clock" "irrigation planner"'
-    container.appendChild(planner)
-}
-
+// creating a new plan
 function createPlan() {
     let plan = readData()
     let channels = createPlanXChannel()
 
-    if(channels.length > 2){
+    if (channels.length > 2) {
         window.alert('A selection of three or more valves isn\'t possible due to safety issues')
-    } else if (channels.length < 1){
+    } else if (channels.length < 1) {
         window.alert('Please select one or two valves for your irrigation plan')
     } else {
         plan.channels = channels
@@ -348,13 +390,13 @@ function createPlan() {
     }
 }
 
-
-function changePlan(){
+// updating an existing plan
+function changePlan() {
     const updatedPlan = readData()
     let channels = createPlanXChannel()
-    if(channels.length > 2){
+    if (channels.length > 2) {
         window.alert('A selection of three or more valves isn\'t possible due to safety issues')
-    } else if (channels.length < 1){
+    } else if (channels.length < 1) {
         window.alert('Please select one or two valves for your irrigation plan')
     } else {
         updatedPlan.channels = channels
@@ -363,9 +405,10 @@ function changePlan(){
     }
 }
 
-function deletePlan(){
+// deleting an existing plan
+function deletePlan() {
     let confirmation = window.confirm('Do you really want to delete this plan?')
-    if (confirmation){
+    if (confirmation) {
         console.log('Plan will be deleted')
         let plan = document.getElementById('planner').planObj
         socket.emit('deletePlan', plan)
@@ -375,116 +418,17 @@ function deletePlan(){
     resetPage()
 }
 
-function resetPage(){
-    let planner = document.getElementById('planner')
-    if(planner){
-        planner.remove()
-    }
-
-    let container = document.getElementById('grid-container')
-    getDBTable('irrigationPlans')
-    buildHumidity(humidityStr)
-    buildValves(valveArr)
-    container.style.gridTemplateAreas = '"clock clock" "irrigation humidity" "irrigation valves"'
-}
-
-function readData() {
-    let planObj = document.getElementById('planner').planObj
-    let arr = document.getElementById('planner').weekArr
-    let time
-
-    if(arr[0].children[0].checked) {
-        time = convertTime(arr[0].children[3].value.split(':'))
-        planObj.monday = `0 ${time[1]} ${time[0]} * * 1`
-        planObj.monDuration = arr[0].children[5].valueAsNumber
-    } else {
-        planObj.monday = null
-        planObj.monDuration = 0
-    }
-
-    if(arr[1].children[0].checked) {
-        time = convertTime(arr[1].children[3].value.split(':'))
-        planObj.tuesday = `0 ${time[1]} ${time[0]} * * 2`
-        planObj.tueDuration = arr[1].children[5].valueAsNumber
-    } else {
-        planObj.tuesday = null
-        planObj.tueDuration = 0
-    }
-
-    if(arr[2].children[0].checked) {
-        time = convertTime(arr[2].children[3].value.split(':'))
-        planObj.wednesday = `0 ${time[1]} ${time[0]} * * 3`
-        planObj.wedDuration = arr[2].children[5].valueAsNumber
-    } else {
-        planObj.wednesday = null
-        planObj.wedDuration = 0
-    }
-
-    if(arr[3].children[0].checked) {
-        time = convertTime(arr[3].children[3].value.split(':'))
-        planObj.thursday = `0 ${time[1]} ${time[0]} * * 4`
-        planObj.thuDuration = arr[3].children[5].valueAsNumber
-    } else {
-        planObj.thursday = null
-        planObj.thuDuration = 0
-    }
-
-    if(arr[4].children[0].checked) {
-        time = convertTime(arr[4].children[3].value.split(':'))
-        planObj.friday = `0 ${time[1]} ${time[0]} * * 5`
-        planObj.friDuration = arr[4].children[5].valueAsNumber
-    } else {
-        planObj.friday = null
-        planObj.friDuration = 0
-    }
-
-    if(arr[5].children[0].checked) {
-        time = convertTime(arr[5].children[3].value.split(':'))
-        planObj.saturday = `0 ${time[1]} ${time[0]} * * 6`
-        planObj.satDuration = arr[5].children[5].valueAsNumber
-    } else {
-        planObj.saturday = null
-        planObj.satDuration = 0
-    }
-
-    if(arr[6].children[0].checked) {
-        time = convertTime(arr[6].children[3].value.split(':'))
-        planObj.sunday = `0 ${time[1]} ${time[0]} * * 0`
-        planObj.sunDuration = arr[6].children[5].valueAsNumber
-    } else {
-        planObj.sunday = null
-        planObj.sunDuration = 0
-    }
-    
-    return planObj
-}
-
-//If the first character is '0', remove it
-function convertTime(arr) {
-       for (let i = 0; i < arr.length; i++) {
-           if(arr[i][0] === '0'){
-                arr[i] = arr[i].slice(1)
-           }
-       }
-       return arr
-}
-
-function convertTimeReversed(str){
-    if(str.length == 1){
-        return '0' + str
-    } else return str
-}
-
+// used to create a planXchannel entry, will be handled by back-end
 function createPlanXChannel() {
     let div = document.getElementById('planner').children[3]
     let planID = document.getElementById('planner').planObj.planID
     let arr = []
-     for (let i = 0; i < valveArr.length ; i++) {
-                if(div.children[i*2].checked){
-                let valve = {channelID: valveArr[i].channelID, planID: planID}
-                arr.push(valve)
-                }
-    }  
+    for (let i = 0; i < valveArr.length; i++) {
+        if (div.children[i * 2].checked) {
+            let valve = { channelID: valveArr[i].channelID, planID: planID }
+            arr.push(valve)
+        }
+    }
     return arr
 }
 
