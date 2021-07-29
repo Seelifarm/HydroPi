@@ -54,7 +54,7 @@ io.sockets.on("connection", function(Socket){
 
     console.log("★ " + data)
 
-    //Use data to fill tje job with variables
+    //Use data to fill the job with variables
 
     manager.add(counter.toString(),'0 * * * * *', function() {
 
@@ -75,105 +75,165 @@ io.sockets.on("connection", function(Socket){
   });
 
 
+
   //DB interfaces for table irrigationPlans
+
   Socket.on("createPlan", async function(data){
-    let pXC = data.channels
+    try {
+      // extract channels from data(plan) to match db entity
+      let pXC = data.channels;
+      delete data.channels;
+      // insert plan into db
+      await db.insertEntity('irrigationPlans', data);
+  
+      // compose valvesString
+      let arr = [];
+      pXC.forEach(async element => {
+        arr.push(element.channelID);
+        //insert pXC into db (which channel(s) belong to which plan)
+        await db.insertEntity('planXChannel', element);
+      });
+      let valvesString = arr.join('+');
 
-    delete data.channels;
+      cron.createJobsFromIrrigationPlan(data, valvesString, runIrrigation);
 
-    await db.insertEntity('irrigationPlans', data)
-
-    let arr = [] 
-
-    pXC.forEach(async element => {
-      arr.push(element.channelID)
-      await db.insertEntity('planXChannel', element)
-    })
-
-    let valvesString = arr.join('+')
-    cron.createJobsFromIrrigationPlan(data, valvesString, runIrrigation);
-  });
-
-  Socket.on("updatePlan", async function(data){
-
-    // delete old pXC
-    await db.deleteEntity('planXChannel', 'planID', data.planID)
-   
-
-    let arr = [] 
-    // insert new pXC
-    data.channels.forEach(async element => {
-      arr.push(element.channelID)
-      await db.insertEntity('planXChannel', element)
-    })
-
-    delete data.channels;
-
-    let valvesString = arr.join('+')
-
-    await db.updateEntity('irrigationPlans', 'planID', data.planID, data)
-    cron.updateJobsFromIrrigationPlan(data, valvesString, runIrrigation)
-  });
-
-  Socket.on("deletePlan", async function(data){
-    await db.deleteEntity('irrigationPlans', 'planID', data.planID)
-    await db.deleteEntity('planXChannel', 'planID', data.planID)
-    cron.deleteJobsFromIrrigationPlan(data)
-  });
-
-  //DB update interface for channels
-  Socket.on("updateChannels", async function(data){
-    await db.updateEntity('channels', 'channelID', data.channelID, data)
-  });
-
-  //DB interfaces for table planXChannel (TODO: delete, done in plan methods)
-  Socket.on("createPXC", async function(data){
-    await db.insertEntity('planXChannel', data)
-  });
-
-  Socket.on("updatePXC", async function(data){
-    await db.updateEntity('planXChannel', 'planID', data.planID, data)
-  });
-
-  Socket.on("deletePXCByPID", async function(data){
-    await db.deleteEntity('planXChannel', 'planID', data.planID)
-  });
-
-  Socket.on("deleteSpecificInPXC", async function(data){
-    await db.deleteSpecificEntity('planXChannel', 'planID', data.planID, 'channelID', data.channelID)
-  });
-
-  //Data to client as JSON
-  Socket.on("requestData", async function(data){
-    // send a message to the destination
-    switch (data.tableName) {
-      case 'channels':
-        Socket.emit("fetchChannels" , JSON.stringify(await db.getAllEntities(data.tableName)));
-        break;
-      case 'irrigationPlans':
-        Socket.emit("fetchIrrigationPlans" , JSON.stringify(await db.getAllEntities(data.tableName)));
-        break;
-      case 'planXChannel':
-        Socket.emit("fetchPlanXChannel" , JSON.stringify(await db.getAllEntities(data.tableName)));
-        break;
-      case 'sensorLog':
-        Socket.emit("fetchSensorLog" , JSON.stringify(await db.getAllEntities(data.tableName)));
-        break;
-      case 'irrigationLog':
-        Socket.emit("fetchIrrigationLog" , JSON.stringify(await db.getAllEntities(data.tableName)));
-        break;
-      default:
-        break;
+    } catch (error) {
+      console.error(error);
     }
   });
 
-  Socket.on('getSpecificPXCByPID', async function(data) { 
-    Socket.emit('fetchSpecificPXC', JSON.stringify(await db.getEntity('planXChannel', 'planID', data.planID))) })
+  Socket.on("updatePlan", async function (data) {
+    try {
+      // delete old pXC
+      await db.deleteEntity('planXChannel', 'planID', data.planID);
 
-  Socket.on('getHumidity', async function() {
-    const humidity = await db.getLastEntity('sensorLog', 'logTime')
-    Socket.emit("fetchHumidity", humidity[0].value.toString() + "%")
-  })
+      // compose valvesString
+      let arr = [];
+      data.channels.forEach(async element => {
+        arr.push(element.channelID);
+        // insert new pXC
+        await db.insertEntity('planXChannel', element);
+      })
+      let valvesString = arr.join('+');
+
+      // delete channels from data(plan) to match db entity
+      delete data.channels;
+
+      await db.updateEntity('irrigationPlans', 'planID', data.planID, data);
+
+      cron.updateJobsFromIrrigationPlan(data, valvesString, runIrrigation);
+
+    } catch (error) {
+      console.error(error);
+    }
+  });
+
+  Socket.on("deletePlan", async function(data){
+    try {
+      // delete entities
+      await db.deleteEntity('irrigationPlans', 'planID', data.planID);
+      await db.deleteEntity('planXChannel', 'planID', data.planID);
+      
+      cron.deleteJobsFromIrrigationPlan(data);
+
+    } catch (error) {
+      console.error(error);
+    }
+  });
+
+
+
+  //DB update interface for channels
+  Socket.on("updateChannels", async function(data){
+    try {
+      await db.updateEntity('channels', 'channelID', data.channelID, data);
+    } catch (error) {
+      console.error(error);
+    }
+  });
+
+
+
+  //DB interfaces for table planXChannel
+  Socket.on("createPXC", async function(data){
+    try {
+      await db.insertEntity('planXChannel', data);
+    } catch (error) {
+      console.error(error);
+    }
+  });
+
+  Socket.on("updatePXC", async function(data){
+    try {
+      await db.updateEntity('planXChannel', 'planID', data.planID, data);
+    } catch (error) {
+      console.error(error);
+    }
+  });
+
+  Socket.on("deletePXCByPID", async function(data){
+    try {
+      await db.deleteEntity('planXChannel', 'planID', data.planID);
+    } catch (error) {
+      console.error(error);
+    }
+  });
+
+  Socket.on("deleteSpecificInPXC", async function(data){
+    try {
+      await db.deleteSpecificEntity('planXChannel', 'planID', data.planID, 'channelID', data.channelID);
+    } catch (error) {
+      console.error(error);
+    }
+  });
+
+
+
+  //Data to client as JSON
+  Socket.on("requestData", async function (data) {
+    try {
+      // send a message to the destination
+      switch (data.tableName) {
+        case 'channels':
+          Socket.emit("fetchChannels", JSON.stringify(await db.getAllEntities(data.tableName)));
+          break;
+        case 'irrigationPlans':
+          Socket.emit("fetchIrrigationPlans", JSON.stringify(await db.getAllEntities(data.tableName)));
+          break;
+        case 'planXChannel':
+          Socket.emit("fetchPlanXChannel", JSON.stringify(await db.getAllEntities(data.tableName)));
+          break;
+        case 'sensorLog':
+          Socket.emit("fetchSensorLog", JSON.stringify(await db.getAllEntities(data.tableName)));
+          break;
+        case 'irrigationLog':
+          Socket.emit("fetchIrrigationLog", JSON.stringify(await db.getAllEntities(data.tableName)));
+          break;
+        default:
+          throw `Invalid tableName: ${data.tableName}`;
+      }
+    } catch (error) {
+      console.error(error);
+    }
+  });
+
+  Socket.on('getSpecificPXCByPID', async function (data) {
+    try {
+      Socket.emit('fetchSpecificPXC', JSON.stringify(await db.getEntity('planXChannel', 'planID', data.planID)));
+    } catch (error) {
+      console.error(error);
+    }
+  });
+
+  Socket.on('getHumidity', async function () {
+    try {
+      const humidity = await db.getLastEntity('sensorLog', 'logTime');
+      Socket.emit("fetchHumidity", humidity[0].value.toString() + "%");
+    } catch (error) {
+      console.error(error);
+    }
+  });
+
 });
 
 
@@ -192,7 +252,7 @@ function runSensor() {
   pyshell.on('message', function (message) {
     // received a message sent from the Python script (a simple "print" statement)
     if (message.includes('%')) {
-      let humidityValue = message.substring(12)
+      let humidityValue = message.substring(12);
       io.emit("fetchHumidity", humidityValue);
     }
     console.log(message);
@@ -203,7 +263,7 @@ function runSensor() {
     if (err) throw err;
     console.log('★ The exit code was: ' + code);
     console.log('★ The exit signal was: ' + signal);
-    console.log('★ finished humidity measurement')
+    console.log('★ finished humidity measurement');
   });
 }
 
@@ -223,7 +283,7 @@ function runIrrigation(valvesString, duration) {
   pyshell.on('message', function (message) {
     // received a message sent from the Python script (a simple "print" statement)
     if (message.includes('Channel')) {
-      io.emit('fetchIrrigation', message.slice(10))
+      io.emit('fetchIrrigation', message.slice(10));
     }
     console.log(message);
   });
@@ -233,7 +293,7 @@ function runIrrigation(valvesString, duration) {
     if (err) throw err;
     console.log('★ The exit code was: ' + code);
     console.log('★ The exit signal was: ' + signal);
-    console.log('★ finished irrigation')
+    console.log('★ finished irrigation');
   });
 }
 
@@ -241,30 +301,32 @@ function runIrrigation(valvesString, duration) {
 
 
 
-// Method to restore CronJobs from irrigationPlans in DB on (re)boot
+// restore CronJobs from irrigationPlans in DB on (re)boot
 async function restoreCronJobs() {
+  try {
+    // get all irrigationPlans from db
+    let plans = await db.getAllEntities("irrigationPlans");
 
-  // get all irrigationPlans from db
-  let plans = await db.getAllEntities("irrigationPlans")
-  //console.log(plans)
+    // get all planXChannel (valves)
+    var pcMap = new Map();
+    let pXC = await db.getAllEntities("planXChannel");
+    pXC.forEach(x => {
+      if (!pcMap.has(x.planID)) {
+        pcMap.set(x.planID, []);
+      }
+      pcMap.get(x.planID).push(x.channelID);
+    });
 
-  // get all planXChannel (valves)
-  var pcMap = new Map()
-  let pXC = await db.getAllEntities("planXChannel")
-  pXC.forEach(x => {
-    if (!pcMap.has(x.planID)) {
-      pcMap.set(x.planID, [])
-    }
-    pcMap.get(x.planID).push(x.channelID)
-  })
+    //console.log(pcMap)
 
-  //console.log(pcMap)
-
-  // create CronJob for each plan
-  plans.forEach(plan => {
-    let valvesString = pcMap.get(plan.planID).join('+')
-    cron.createJobsFromIrrigationPlan(plan, valvesString, runIrrigation)
-  })
+    // create CronJob for each plan
+    plans.forEach(plan => {
+      let valvesString = pcMap.get(plan.planID).join('+');
+      cron.createJobsFromIrrigationPlan(plan, valvesString, runIrrigation);
+    });
+  } catch (error) {
+    console.error(error);
+  }
 }
 
 
@@ -274,10 +336,10 @@ async function restoreCronJobs() {
 // INITIALIZATION
 
 // create a CronJob that runs the sensor.py every minute
-cron.createJobForHumiditySensor('0 * * * * *', runSensor)
+cron.createJobForHumiditySensor('0 * * * * *', runSensor);
 
 // restore all CronJobs from saved irrigationPlans
-restoreCronJobs()
+restoreCronJobs();
 
 
 
@@ -293,11 +355,11 @@ server.listen(port, error => {
 
   if (error) {
 
-    console.log('★ Something went wrong ', error)
+    console.log('★ Something went wrong ', error);
 
   } else {
 
-    console.log('★ Server is listening on port ' + port)
+    console.log('★ Server is listening on port ' + port);
 
   }
 
