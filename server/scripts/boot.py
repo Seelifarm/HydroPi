@@ -102,7 +102,7 @@ else:
     subprocess.run(['sudo npm install --prefix ' + pathname2 + ' express'], shell=True)
     subprocess.run(['sudo npm install --prefix ' + pathname2 + ' socket.io'], shell=True)
     subprocess.run(['sudo npm install --prefix ' + pathname2 + ' cron-job-manager'], shell=True)
-    subprocess.run(['sudo npm install --prefix ' + pathname2 + ' node-cron'], shell=True)
+    subprocess.run(['sudo npm install --prefix ' + pathname2 + ' winston'], shell=True)
     subprocess.run(['sudo npm install --prefix ' + pathname2 + ' python-shell'], shell=True)
     subprocess.run(['sudo npm install --prefix ' + pathname2 + ' sqlite3'], shell=True)
     subprocess.run(['sudo npm install --prefix ' + pathname2 + ' knex'], shell=True)
