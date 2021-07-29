@@ -1,12 +1,13 @@
 const knex = require("./knex");
 
 function insertEntity(entityName, entity) {
+    console.info(`Insert ${JSON.stringify(entity)} into ${entityName}-table`)
     return knex(entityName).insert(entity);
 }
 
 function getEntity(entityName, colName, value) {
+    // console.info(`Select from ${entityName}-table into ${entityName}-table`)
     return knex(entityName).select("*").where(colName, value);
-    //return knex(entityName).where(colName, value.select("*"));
 }
 
 function getAllEntities(entityName) {

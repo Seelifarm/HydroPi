@@ -14,7 +14,9 @@ const port = 80
 
 const app = express()
 
-const db = require("./db/entities")
+const logger = require('./log/logger')
+
+const db = require('./db/entities')
 
 const cron = require ("./cron")
 
@@ -46,13 +48,13 @@ var clients = {}
 
 io.sockets.on("connection", function(Socket){
 
-  console.log("★ New connection found and registered with ID: " + Socket.id);
+  logger.http("New connection found and registered with ID: " + Socket.id);
 
   clients[Socket.id] = Socket;
 
   Socket.on("sendMessage", function(data){
 
-    console.log("★ " + data)
+    logger.info("" + data)
 
     //Use data to fill the job with variables
 
@@ -60,17 +62,17 @@ io.sockets.on("connection", function(Socket){
 
       //use python-shell to execute script
 
-        console.log("★ A Cron Job is running every minute")
+        logger.info("A Cron Job is running every minute")
 
     });
 
     manager.start(counter.toString())
 
-    console.log("★ Started a cron job")
+    logger.info("Started a cron job")
 
     counter++
 
-    console.log("★ Logging this counter: " + counter)
+    logger.info("Logging this counter: " + counter)
 
   });
 
@@ -98,7 +100,7 @@ io.sockets.on("connection", function(Socket){
       cron.createJobsFromIrrigationPlan(data, valvesString, runIrrigation);
 
     } catch (error) {
-      console.error(error);
+      logger.error(error);
     }
   });
 
@@ -124,7 +126,7 @@ io.sockets.on("connection", function(Socket){
       cron.updateJobsFromIrrigationPlan(data, valvesString, runIrrigation);
 
     } catch (error) {
-      console.error(error);
+      logger.error(error);
     }
   });
 
@@ -137,7 +139,7 @@ io.sockets.on("connection", function(Socket){
       cron.deleteJobsFromIrrigationPlan(data);
 
     } catch (error) {
-      console.error(error);
+      logger.error(error);
     }
   });
 
@@ -148,7 +150,7 @@ io.sockets.on("connection", function(Socket){
     try {
       await db.updateEntity('channels', 'channelID', data.channelID, data);
     } catch (error) {
-      console.error(error);
+      logger.error(error);
     }
   });
 
@@ -159,7 +161,7 @@ io.sockets.on("connection", function(Socket){
     try {
       await db.insertEntity('planXChannel', data);
     } catch (error) {
-      console.error(error);
+      logger.error(error);
     }
   });
 
@@ -167,7 +169,7 @@ io.sockets.on("connection", function(Socket){
     try {
       await db.updateEntity('planXChannel', 'planID', data.planID, data);
     } catch (error) {
-      console.error(error);
+      logger.error(error);
     }
   });
 
@@ -175,7 +177,7 @@ io.sockets.on("connection", function(Socket){
     try {
       await db.deleteEntity('planXChannel', 'planID', data.planID);
     } catch (error) {
-      console.error(error);
+      logger.error(error);
     }
   });
 
@@ -183,7 +185,7 @@ io.sockets.on("connection", function(Socket){
     try {
       await db.deleteSpecificEntity('planXChannel', 'planID', data.planID, 'channelID', data.channelID);
     } catch (error) {
-      console.error(error);
+      logger.error(error);
     }
   });
 
@@ -213,7 +215,7 @@ io.sockets.on("connection", function(Socket){
           throw `Invalid tableName: ${data.tableName}`;
       }
     } catch (error) {
-      console.error(error);
+      logger.error(error);
     }
   });
 
@@ -221,7 +223,7 @@ io.sockets.on("connection", function(Socket){
     try {
       Socket.emit('fetchSpecificPXC', JSON.stringify(await db.getEntity('planXChannel', 'planID', data.planID)));
     } catch (error) {
-      console.error(error);
+      logger.error(error);
     }
   });
 
@@ -230,7 +232,7 @@ io.sockets.on("connection", function(Socket){
       const humidity = await db.getLastEntity('sensorLog', 'logTime');
       Socket.emit("fetchHumidity", humidity[0].value.toString() + "%");
     } catch (error) {
-      console.error(error);
+      logger.error(error);
     }
   });
 
@@ -255,15 +257,15 @@ function runSensor() {
       let humidityValue = message.substring(12);
       io.emit("fetchHumidity", humidityValue);
     }
-    console.log(message);
+    logger.info(message);
   });
 
   // end the input stream and allow the process to exit
   pyshell.end(function (err, code, signal) {
     if (err) throw err;
-    console.log('★ The exit code was: ' + code);
-    console.log('★ The exit signal was: ' + signal);
-    console.log('★ finished humidity measurement');
+    logger.info('The exit code was: ' + code);
+    logger.info('The exit signal was: ' + signal);
+    logger.info('finished humidity measurement');
   });
 }
 
@@ -285,15 +287,15 @@ function runIrrigation(valvesString, duration) {
     if (message.includes('Channel')) {
       io.emit('fetchIrrigation', message.slice(10));
     }
-    console.log(message);
+    logger.info(message);
   });
 
   // end the input stream and allow the process to exit
   pyshell.end(function (err, code, signal) {
     if (err) throw err;
-    console.log('★ The exit code was: ' + code);
-    console.log('★ The exit signal was: ' + signal);
-    console.log('★ finished irrigation');
+    logger.info('The exit code was: ' + code);
+    logger.info('The exit signal was: ' + signal);
+    logger.info('finished irrigation');
   });
 }
 
@@ -317,7 +319,7 @@ async function restoreCronJobs() {
       pcMap.get(x.planID).push(x.channelID);
     });
 
-    //console.log(pcMap)
+    //logger.info(pcMap)
 
     // create CronJob for each plan
     plans.forEach(plan => {
@@ -325,7 +327,7 @@ async function restoreCronJobs() {
       cron.createJobsFromIrrigationPlan(plan, valvesString, runIrrigation);
     });
   } catch (error) {
-    console.error(error);
+    logger.error(error);
   }
 }
 
@@ -341,6 +343,14 @@ cron.createJobForHumiditySensor('0 * * * * *', runSensor);
 // restore all CronJobs from saved irrigationPlans
 restoreCronJobs();
 
+// show log level
+logger.error('0') 
+logger.warn('1') 
+logger.info('2') 
+logger.http('3') 
+logger.verbose('4') 
+logger.debug('5')  
+logger.silly('6') 
 
 
 
@@ -355,11 +365,11 @@ server.listen(port, error => {
 
   if (error) {
 
-    console.log('★ Something went wrong ', error);
+    logger.info('Something went wrong ', error);
 
   } else {
 
-    console.log('★ Server is listening on port ' + port);
+    logger.info('Server is listening on port ' + port);
 
   }
 
