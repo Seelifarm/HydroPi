@@ -1,4 +1,6 @@
 const CronJobManager = require('cron-job-manager');
+const logger = require('./log/logger')(__filename.slice(__filename.lastIndexOf('/')+1))
+
 
 manager = new CronJobManager();
 
@@ -19,13 +21,13 @@ function createJobsFromIrrigationPlan(plan, valvesString, runIrrigation) {
 
       // setup CronJob
       manager.add(cronID, day, function () {
-        console.info(`STARTING CronJob: ${cronID} (Time: '${day}', Valves: ${valvesString}, Duration: ${durations[index]})`);
+        logger.info(`STARTING CronJob: ${cronID} (Time: '${day}', Valves: ${valvesString}, Duration: ${durations[index]})`);
         runIrrigation(valvesString, durations[index]);
       })
 
       // schedule CronJob
       manager.start(cronID);
-      console.info(`Scheduled CronJob: ${cronID} (Time: '${day}', Valves: ${valvesString}, Duration: ${durations[index]})`);
+      logger.info(`Scheduled CronJob: ${cronID} (Time: '${day}', Valves: ${valvesString}, Duration: ${durations[index]})`);
       //console.log(`Current jobs: ${manager}`);
     }
   });
@@ -46,7 +48,7 @@ function deleteJobsFromIrrigationPlan(plan) {
 
       // remove CronJob
       manager.deleteJob(cronID)
-      console.info(`Deleted CronJob: ${cronID}`);
+      logger.info(`Deleted CronJob: ${cronID}`);
     }
   });
 }
@@ -70,30 +72,30 @@ function updateJobsFromIrrigationPlan(plan, valvesString, runIrrigation) {
       // if CronJob already exists, update
       if (manager.exists(cronID)) {
         manager.update(cronID, day, function (){
-          console.info(`STARTING CronJob: ${cronID} (Time: '${day}', Valves: ${valvesString}, Duration: ${durations[index]})`);
+          logger.info(`STARTING CronJob: ${cronID} (Time: '${day}', Valves: ${valvesString}, Duration: ${durations[index]})`);
           runIrrigation(valvesString, durations[index]);
         });
-        console.info(`Updated CronJob: ${cronID} (Time: '${day}', Valves: ${valvesString}, Duration: ${durations[index]})`);
+        logger.info(`Updated CronJob: ${cronID} (Time: '${day}', Valves: ${valvesString}, Duration: ${durations[index]})`);
 
 
         // else create new CronJob    
       } else {
         // setup CronJob
         manager.add(cronID, day, function () {
-          console.info(`STARTING CronJob: ${cronID} (Time: '${day}', Valves: ${valvesString}, Duration: ${durations[index]})`);
+          logger.info(`STARTING CronJob: ${cronID} (Time: '${day}', Valves: ${valvesString}, Duration: ${durations[index]})`);
           runIrrigation(valvesString, durations[index]);
         })
 
         // schedule CronJob
         manager.start(cronID);
-        console.info(`Scheduled CronJob: ${cronID} (Time: '${day}', Valves: ${valvesString}, Duration: ${durations[index]})`);
+        logger.info(`Scheduled CronJob: ${cronID} (Time: '${day}', Valves: ${valvesString}, Duration: ${durations[index]})`);
       }
       // else if == null    
     } else {
       // if existed before, delete
       if (manager.exists(cronID)) {
         manager.deleteJob(cronID)
-        console.info(`Deleted CronJob: ${cronID}`);
+        logger.info(`Deleted CronJob: ${cronID}`);
       }
 
     }
@@ -129,7 +131,7 @@ function composeCronID(planID, index) {
       cronID += "-Sun";
       break;
     default:
-      console.error("Invalid index, can't compose cronID");
+      logger.error("Invalid index, can't compose cronID");
       break;
   }
 
@@ -197,7 +199,7 @@ module.exports = {
           duration = data.sunDuration
           break;
         default:
-          console.log("Invalid ID")
+          logger.error("Invalid ID")
           break;
       }
 
@@ -220,7 +222,7 @@ module.exports = {
             manager.deleteJob(cronID);
             break;
           default:
-            console.log("Invalid action. Choose from: create, update, delete")
+            logger.error("Invalid action. Choose from: create, update, delete")
             break;
         }
 
