@@ -54,7 +54,7 @@ io.sockets.on("connection", function(Socket){
 
   Socket.on("sendMessage", function(data){
 
-    logger.info("" + data)
+    logger.http("" + data)
 
     //Use data to fill the job with variables
 
@@ -81,6 +81,7 @@ io.sockets.on("connection", function(Socket){
   //DB interfaces for table irrigationPlans
 
   Socket.on("createPlan", async function(data){
+    logger.http(`Socket on: "createPlan", Client ID: ${Socket.id}, Data: ${JSON.stringify(data)}`);
     try {
       // extract channels from data(plan) to match db entity
       let pXC = data.channels;
@@ -105,6 +106,7 @@ io.sockets.on("connection", function(Socket){
   });
 
   Socket.on("updatePlan", async function (data) {
+    logger.http(`Socket on: "updatePlan", Client ID: ${Socket.id}, Data: ${JSON.stringify(data)}`);
     try {
       // delete old pXC
       await db.deleteEntity('planXChannel', 'planID', data.planID);
@@ -131,6 +133,7 @@ io.sockets.on("connection", function(Socket){
   });
 
   Socket.on("deletePlan", async function(data){
+    logger.http(`Socket on: "deletePlan", Client ID: ${Socket.id}, Data: ${JSON.stringify(data)}`);
     try {
       // delete entities
       await db.deleteEntity('irrigationPlans', 'planID', data.planID);
@@ -147,6 +150,7 @@ io.sockets.on("connection", function(Socket){
 
   //DB update interface for channels
   Socket.on("updateChannels", async function(data){
+    logger.http(`Socket on: "updateChannels", Client ID: ${Socket.id}, Data: ${JSON.stringify(data)}`);
     try {
       await db.updateEntity('channels', 'channelID', data.channelID, data);
     } catch (error) {
@@ -158,6 +162,7 @@ io.sockets.on("connection", function(Socket){
 
   //DB interfaces for table planXChannel
   Socket.on("createPXC", async function(data){
+    logger.http(`Socket on: "createPXC", Client ID: ${Socket.id}, Data: ${JSON.stringify(data)}`);
     try {
       await db.insertEntity('planXChannel', data);
     } catch (error) {
@@ -166,6 +171,7 @@ io.sockets.on("connection", function(Socket){
   });
 
   Socket.on("updatePXC", async function(data){
+    logger.http(`Socket on: "updatePXC", Client ID: ${Socket.id}, Data: ${JSON.stringify(data)}`);
     try {
       await db.updateEntity('planXChannel', 'planID', data.planID, data);
     } catch (error) {
@@ -174,6 +180,7 @@ io.sockets.on("connection", function(Socket){
   });
 
   Socket.on("deletePXCByPID", async function(data){
+    logger.http(`Socket on: "deletePXCByPID", Client ID: ${Socket.id}, Data: ${JSON.stringify(data)}`);
     try {
       await db.deleteEntity('planXChannel', 'planID', data.planID);
     } catch (error) {
@@ -182,6 +189,7 @@ io.sockets.on("connection", function(Socket){
   });
 
   Socket.on("deleteSpecificInPXC", async function(data){
+    logger.http(`Socket on: "deleteSpecificInPXC", Client ID: ${Socket.id}, Data: ${JSON.stringify(data)}`);
     try {
       await db.deleteSpecificEntity('planXChannel', 'planID', data.planID, 'channelID', data.channelID);
     } catch (error) {
@@ -193,23 +201,34 @@ io.sockets.on("connection", function(Socket){
 
   //Data to client as JSON
   Socket.on("requestData", async function (data) {
+    logger.http(`Socket on: "requestData", Client ID: ${Socket.id}, Data: ${JSON.stringify(data)}`);
     try {
-      // send a message to the destination
+      let requestedData;
       switch (data.tableName) {
         case 'channels':
-          Socket.emit("fetchChannels", JSON.stringify(await db.getAllEntities(data.tableName)));
+          requestedData = JSON.stringify(await db.getAllEntities(data.tableName));
+          Socket.emit("fetchChannels", requestedData);
+          logger.http(`Socket emit: "fetchChannels", Client ID: ${Socket.id}, Data: ${requestedData}`);
           break;
         case 'irrigationPlans':
-          Socket.emit("fetchIrrigationPlans", JSON.stringify(await db.getAllEntities(data.tableName)));
+          requestedData = JSON.stringify(await db.getAllEntities(data.tableName));
+          Socket.emit("fetchIrrigationPlans", requestedData);
+          logger.http(`Socket emit: "fetchIrrigationPlans", Client ID: ${Socket.id}, Data: ${requestedData}`);
           break;
         case 'planXChannel':
-          Socket.emit("fetchPlanXChannel", JSON.stringify(await db.getAllEntities(data.tableName)));
+          requestedData = JSON.stringify(await db.getAllEntities(data.tableName));
+          Socket.emit("fetchPlanXChannel", requestedData);
+          logger.http(`Socket emit: "fetchPlanXChannel", Client ID: ${Socket.id}, Data: ${requestedData}`);
           break;
         case 'sensorLog':
-          Socket.emit("fetchSensorLog", JSON.stringify(await db.getAllEntities(data.tableName)));
+          requestedData = JSON.stringify(await db.getAllEntities(data.tableName));
+          Socket.emit("fetchSensorLog", requestedData);
+          logger.http(`Socket emit: "fetchSensorLog", Client ID: ${Socket.id}, Data: ${requestedData}`);
           break;
         case 'irrigationLog':
-          Socket.emit("fetchIrrigationLog", JSON.stringify(await db.getAllEntities(data.tableName)));
+          requestedData = JSON.stringify(await db.getAllEntities(data.tableName));
+          Socket.emit("fetchIrrigationLog", requestedData);
+          logger.http(`Socket emit: "fetchIrrigationLog", Client ID: ${Socket.id}, Data: ${requestedData}`);
           break;
         default:
           throw `Invalid tableName: ${data.tableName}`;
@@ -220,17 +239,23 @@ io.sockets.on("connection", function(Socket){
   });
 
   Socket.on('getSpecificPXCByPID', async function (data) {
+    logger.http(`Socket on: "getSpecificPXCByPID", Client ID: ${Socket.id}, Data: ${JSON.stringify(data)}`);
     try {
-      Socket.emit('fetchSpecificPXC', JSON.stringify(await db.getEntity('planXChannel', 'planID', data.planID)));
+      const requestedData = JSON.stringify(await db.getEntity('planXChannel', 'planID', data.planID));
+      Socket.emit('fetchSpecificPXC', requestedData);
+      logger.http(`Socket emit: "fetchSpecificPXC", Client ID: ${Socket.id}, Data: ${requestedData}`);
     } catch (error) {
       logger.error(error);
     }
   });
 
   Socket.on('getHumidity', async function () {
+    logger.http(`Socket on: "getHumidity", Client ID: ${Socket.id}, Data: null`);
     try {
       const humidity = await db.getLastEntity('sensorLog', 'logTime');
-      Socket.emit("fetchHumidity", humidity[0].value.toString() + "%");
+      const humidityValue = humidity[0].value.toString() + "%";
+      Socket.emit("fetchHumidity", humidityValue);
+      logger.http(`Socket emit: "fetchHumidity", Client ID: ${Socket.id}, Data: ${humidityValue}`);
     } catch (error) {
       logger.error(error);
     }
@@ -246,6 +271,8 @@ io.sockets.on("connection", function(Socket){
 
 // run sensor
 function runSensor() {
+  logger.warn('Starting sensor.py');
+
   let pyshell = new PythonShell('sensorTest.py');  // sensor.py (Testing: sensorTest.py) 
 
   // sends a message to the Python script via stdin
@@ -256,21 +283,23 @@ function runSensor() {
     if (message.includes('%')) {
       let humidityValue = message.substring(12);
       io.emit("fetchHumidity", humidityValue);
+      logger.http(`Socket emit: "fetchHumidity", Client ID: BROADCAST, Data: ${humidityValue}`);
     }
-    logger.info(message);
+    logger.warn(message);
   });
 
   // end the input stream and allow the process to exit
   pyshell.end(function (err, code, signal) {
     if (err) throw err;
-    logger.info('The exit code was: ' + code);
-    logger.info('The exit signal was: ' + signal);
-    logger.info('finished humidity measurement');
+    logger.warn('sensor.py exit code was: ' + code);
+    logger.warn('sensor.py exit signal was: ' + signal);
+    logger.warn('finished humidity measurement');
   });
 }
 
 // open valve(s)/relay(s) to irrigate plants
 function runIrrigation(valvesString, duration) {
+  logger.warn('Starting irrigationController.py');
 
   let options = {
     mode: 'text',
@@ -285,17 +314,19 @@ function runIrrigation(valvesString, duration) {
   pyshell.on('message', function (message) {
     // received a message sent from the Python script (a simple "print" statement)
     if (message.includes('Channel')) {
-      io.emit('fetchIrrigation', message.slice(10));
+      const data = message.slice(10);
+      io.emit('fetchIrrigation', data);
+      logger.http(`Socket emit: "fetchIrrigation", Client ID: BROADCAST, Data: ${data}`);
     }
-    logger.info(message);
+    logger.warn(message);
   });
 
   // end the input stream and allow the process to exit
   pyshell.end(function (err, code, signal) {
     if (err) throw err;
-    logger.info('The exit code was: ' + code);
-    logger.info('The exit signal was: ' + signal);
-    logger.info('finished irrigation');
+    logger.warn('irrigationController.py exit code was: ' + code);
+    logger.warn('irrigationController.py exit signal was: ' + signal);
+    logger.warn('finished irrigation');
   });
 }
 
@@ -305,6 +336,7 @@ function runIrrigation(valvesString, duration) {
 
 // restore CronJobs from irrigationPlans in DB on (re)boot
 async function restoreCronJobs() {
+  logger.info("Restoring CronJobs for irrigationPlans")
   try {
     // get all irrigationPlans from db
     let plans = await db.getAllEntities("irrigationPlans");
@@ -337,12 +369,6 @@ async function restoreCronJobs() {
 
 // INITIALIZATION
 
-// create a CronJob that runs the sensor.py every minute
-cron.createJobForHumiditySensor('0 * * * * *', runSensor);
-
-// restore all CronJobs from saved irrigationPlans
-restoreCronJobs();
-
 // show log level
 logger.error('0') 
 logger.warn('1') 
@@ -351,6 +377,14 @@ logger.http('3')
 logger.verbose('4') 
 logger.debug('5')  
 logger.silly('6') 
+
+// create a CronJob that runs the sensor.py every minute
+cron.createJobForHumiditySensor('0 * * * * *', runSensor);
+
+// restore all CronJobs from saved irrigationPlans
+restoreCronJobs();
+
+
 
 
 
@@ -365,11 +399,11 @@ server.listen(port, error => {
 
   if (error) {
 
-    logger.info('Something went wrong ', error);
+    logger.error('Something went wrong ', error);
 
   } else {
 
-    logger.info('Server is listening on port ' + port);
+    logger.http('Server is listening on port ' + port);
 
   }
 
