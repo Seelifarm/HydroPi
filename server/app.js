@@ -14,7 +14,7 @@ const port = 80
 
 const app = express()
 
-const logger = require('./log/logger')
+const logger = require('./log/logger')(__filename.slice(__filename.lastIndexOf('/')+1))
 
 const db = require('./db/entities')
 
