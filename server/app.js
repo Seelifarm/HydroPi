@@ -39,7 +39,6 @@ app.use(express.static(htmlPath))
 
 
 
-
 // SOCKETS
 
 var counter = 0
@@ -49,6 +48,7 @@ var clients = {}
 io.sockets.on("connection", function(Socket){
 
   logger.http("New connection found and registered with ID: " + Socket.id);
+  //+ ", IP: " + Socket.handshake.address);
 
   clients[Socket.id] = Socket;
 
@@ -265,15 +265,13 @@ io.sockets.on("connection", function(Socket){
 
 
 
-
-
-// PYTHON SCRIPT METHODS
+// PYTHON SCRIPTS
 
 // run sensor
 function runSensor() {
   logger.warn('Starting sensor.py');
 
-  let pyshell = new PythonShell('sensorTest.py');  // sensor.py (Testing: sensorTest.py) 
+  let pyshell = new PythonShell('sensor.py');  // sensor.py (Testing: sensorTest.py) 
 
   // sends a message to the Python script via stdin
   // pyshell.send('hello');
@@ -283,17 +281,20 @@ function runSensor() {
     if (message.includes('%')) {
       let humidityValue = message.substring(12);
       io.emit("fetchHumidity", humidityValue);
-      logger.http(`Socket emit: "fetchHumidity", Client ID: BROADCAST, Data: ${humidityValue}`);
+      logger.http(`Socket emit: "fetchHumidity", Client ID: ALL, Data: ${humidityValue}`);
     }
-    logger.warn(message);
+    logger.info(message);
   });
 
   // end the input stream and allow the process to exit
   pyshell.end(function (err, code, signal) {
-    if (err) throw err;
-    logger.warn('sensor.py exit code was: ' + code);
-    logger.warn('sensor.py exit signal was: ' + signal);
-    logger.warn('finished humidity measurement');
+    if (err) {
+      logger.error(err);
+      //throw err;
+    }
+    logger.info('sensor.py exit code was: ' + code);
+    logger.info('sensor.py exit signal was: ' + signal);
+    logger.info('finished humidity measurement');
   });
 }
 
@@ -309,28 +310,29 @@ function runIrrigation(valvesString, duration) {
     args: ['--c=' + valvesString, '--d=' + duration]
   };
 
-  let pyshell = new PythonShell('irrigationControllerTest.py', options);  // irrigationController.py (Testing: irrigationControllerTest.py)
+  let pyshell = new PythonShell('irrigationController.py', options);  // irrigationController.py (Testing: irrigationControllerTest.py)
 
   pyshell.on('message', function (message) {
     // received a message sent from the Python script (a simple "print" statement)
     if (message.includes('Channel')) {
       const data = message.slice(10);
       io.emit('fetchIrrigation', data);
-      logger.http(`Socket emit: "fetchIrrigation", Client ID: BROADCAST, Data: ${data}`);
+      logger.http(`Socket emit: "fetchIrrigation", Client ID: ALL, Data: ${data}`);
     }
     logger.warn(message);
   });
 
   // end the input stream and allow the process to exit
   pyshell.end(function (err, code, signal) {
-    if (err) throw err;
-    logger.warn('irrigationController.py exit code was: ' + code);
-    logger.warn('irrigationController.py exit signal was: ' + signal);
-    logger.warn('finished irrigation');
+    if (err) {
+      logger.error(err);
+      //throw err;
+    }
+    logger.info('irrigationController.py exit code was: ' + code);
+    logger.info('irrigationController.py exit signal was: ' + signal);
+    logger.info('finished irrigation');
   });
 }
-
-
 
 
 
@@ -365,8 +367,6 @@ async function restoreCronJobs() {
 
 
 
-
-
 // INITIALIZATION
 
 // show log level
@@ -383,9 +383,6 @@ cron.createJobForHumiditySensor('0 * * * * *', runSensor);
 
 // restore all CronJobs from saved irrigationPlans
 restoreCronJobs();
-
-
-
 
 
 
